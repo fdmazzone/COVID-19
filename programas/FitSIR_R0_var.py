@@ -58,28 +58,21 @@ def Error(x,*params):
 ##################Ejemplo ajustando datos de Argentina ##############33
 #Buscando datos
 ####
-#Pais="Argentina"    
-#Poblacion=44e6
-#Data=ExtraerDatos('Argentina',Poblacion)
+#Pais,Poblacion="Argentina",44e6
 #### 
-#Pais="Brazil" 
-#Poblacion=209.5e6
+#Pais,Poblacion="Brazil",209.5e6
+#######
 #######
 #Pais="Spain" 
 #Poblacion=47007367
 #######
 #Pais="Italy"
 #Poblacion=60541000 
-Pais="USA"
-Poblacion=325719178
-
-
-#### China #####################
-#Poblacion=1403500365
-#Data=ExtraerDatos('China',Poblacion)
+#Pais,Poblacion="USA",325719178#recortar datos 34:
+#Pais,Poblacion="Chile",19107216
+Pais,Poblacion="Netherlands",17424978
 Data=ExtraerDatos(Pais,Poblacion)
-Data=Data[34:,:]/Poblacion #NOrmalizamos la poblacion total
-
+Data=Data[:,:]/Poblacion
 
 ##############################################
 ####       Minimizador Local     #############
@@ -102,7 +95,7 @@ t_corte_lim=((t[0],t[-1]),)
 
 rangos=Y0_lim+t_corte_lim+param_lim
 ############  Candidato inicial ###############33
-param0=np.array([25,1/10.0,3.0,1.0])
+param0=np.array([20,1/5.5,3.0,1.3])
 x0=np.concatenate([Y0,param0],0)
 
 
