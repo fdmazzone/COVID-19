@@ -2,11 +2,32 @@
 # -*- coding: utf-8 -*-
 
 """
-Ajuste de los datos de la pandemia a un modelo SEIR
-usando un minimizador global
-Created on Thu May  7 08:13:53 2020
-@author: Fernando Mazzone
+##############################################################################
+Ajuste de los datos de la pandemia a un modelo SEIR usando un minimizador 
+global.
 
+Uso de la función principal:
+
+>>AjusteSEIR(Pais)
+
+Pais=Pais elegido. Debe ser "Argentina", "Chile", "Brazil", "Italy" o "Spain"
+
+La función ajusta un modelo SEIR a los datos descargados. Por defecto se 
+utiliza un minimizador global llamado dual_annealing. Los resultados se 
+presentan en un gráfico donde se representan cantidad casos confirmados y 
+diarios. 
+
+Aternativamente
+
+>>AjusteSEIR(Pais,Metodo)
+Metodo puede ser: "dual_annealing" (dado por defecto), "shgo", "brute" (muy lento)
+
+Se recomienda ejecutar antes DescargarData.py  que descarga los últimos datos 
+sobre la pandemia.
+
+Creado Jueves Mayo  7 08:13:53 2020
+@author: Fernando Mazzone
+##############################################################################
 """
 
 
