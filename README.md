@@ -36,7 +36,7 @@ SEIR Susceptibles-Expuestos-Infectados-Removidos por la enfermedad.  El modelo e
 ![SEIR](Imagenes/SEIR.png)
 ![](Imagenes/ModeloFormulas.png)
 
-Sólo es necesario modelar las primeras dos ecuaciones
+Sólo es necesario modelar las tres primeras  ecuaciones
 
 **Resultado**
 
