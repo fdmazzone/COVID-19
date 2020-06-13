@@ -34,7 +34,7 @@ Ajusta un modelo SEIR a los datos de "Pais". "Pais" es  el nombre en ingles del 
 SEIR Susceptibles-Expuestos-Infectados-Removidos por la enfermedad.  El modelo es básicamente el de sección 2.5 de [BCF2019].
 
 ![SEIR](Imagenes/SEIR.png)
-![](Imagenes/ModeloFormulas.png)
+![](Imagenes/Formulas.png)
 
 Sólo es necesario modelar las tres primeras  ecuaciones
 
