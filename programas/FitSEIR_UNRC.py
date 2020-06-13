@@ -1,82 +1,43 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-"""
-##############################################################################
-Ajuste de los datos de la pandemia a un modelo SEIR usando un minimizador 
-global.
 
-Uso de la función principal:
-
->>AjusteSEIR(Pais)
-
-Pais=Pais elegido. Debe ser "Argentina", "Chile", "Brazil", "Italy" o "Spain"
-
-La función ajusta un modelo SEIR a los datos descargados. Por defecto se 
-utiliza un minimizador global llamado dual_annealing. Los resultados se 
-presentan en un gráfico donde se representan cantidad casos confirmados y 
-diarios. 
-
-Aternativamente
-
->>AjusteSEIR(Pais,Metodo)
-Metodo puede ser: "dual_annealing" (dado por defecto), "shgo", "brute" (muy lento)
-
-Se recomienda ejecutar antes DescargarData.py  que descarga los últimos datos 
-sobre la pandemia.
-
-Creado Jueves Mayo  7 08:13:53 2020
-@author: Fernando Mazzone
-##############################################################################
-"""
-
-
-#Paquetes necesarios. 
-import numpy as np
-from scipy.integrate import odeint 
-import matplotlib.pyplot as plt
-import scipy.optimize
-import csv
-plt.rc('text', usetex=True)
-
-
-
-#### Datos de paises  ######################################
-#### Se introducen limites basado en ajustes previos #######
-#### Formato: Pais:[Poblacion,rango cortes,rangos R0]
-########   Los datos dados fueron obtenidos experimentalemente
-
-DatosPaises=\
-    {"Argentina":[44e6, ((19.0,20.0),(78.0,79.0)),((3.5,4.5),(1.0,2.0),(1.0,2.0))],
-      "Brazil":[209.5e6,((28.1,29),(45,50)),((3.,5.0),(1.0,3.0),(1.0,3.0))],
-      "Spain": [47007367.0,((15,50),),((3.,5.0),(0.0,1.0))],#Empezar en 23
-      "Italy": [60541000,((15,50),(50,100)),((3.,5.0),(0.0,1.0),(0.0,1.0))],
-      "Chile": [19107216,\
-                ((19.66,22.0),(53.0,54.0)),((2.58,2.6),(1.03,1.05),(1.2,1.3))],
-      "USA":   [325719178,(),()]#empezar de 34
-    }
-
+def FitSEIR(Pais,Metodo="dual_annealing"):
     
-#################  ASIGNACION PARAMETROS GLOBALES#########################
-##########################################################################
-alpha=1/3.0 #1/Periodo infecciosidad  
-k=1/5.0     #1/Periodo exposicion 
-k_ast=k/alpha # adimensionalización
-epsilon=3.0  #AMPLITUD DÍAS TANSICION R0
-
-def AjusteSEIR(Pais,Metodo="dual_annealing"):
-        
     """
-    #######################   Descripcion ###################################
-    Esta funcion ajusta un modelo SEIR a datos de la pandemia del COVID-19.
-    Pais:  pais o region del que se quieren qjustar los datos. Debe figurar
-    en la base de paises DatosPaises
+    ##########################################################################
+    Ajuste de los datos de la pandemia del COVID-19 a un modelo SEIR usando un
+    algorítmo para hallar mínimos globales.
     
+    Uso de la función principal:
     
+    >>AjusteSEIR(Pais)
     
-    ######    Metodos de minimizacion    ######################################
+    Pais=Pais elegido. 
+    
+    Debe ser "Argentina", "Chile", "Brazil", "Italy" o  "Spain". Se descargan 
+    datos de contagios del resto de los países del mundo. Para agregar países
+    editar el diccionario DatosPaises definido más abajo. Hay que agregar datos 
+    de población total y rangos de búsqueda de los parámetros.
+    
+    La función ajusta un modelo SEIR a los datos descargados. Por defecto se 
+    utiliza un minimizador global llamado dual_annealing. Los resultados se 
+    presentan en un gráfico donde se representan cantidad casos confirmados y 
+    diarios.   Se recomienda ejecutar antes DescargarData.py  que descarga los 
+    últimos datos sobre la pandemia.
+    
+    Aternativamente
+    
+    >>AjusteSEIR(Pais,Metodo)
+    
+    Metodo puede ser: "dual_annealing" (dado por defecto), "shgo", "brute" 
+    (muy lento)
+  
+    
     ###########################################################################
-    ####       Minimizadores Globales    ######################################
+    ####       Minimizadores Globales.   ######################################
+    
+    Datos desde la docunmentacio oficial
     ############## dual anneling: #############################################
     Xiang Y, Sun DY, Fan W, Gong XG. Generalized Simulated 
     Annealing Algorithm and Its Application to the Thomson Model. 
@@ -99,27 +60,26 @@ def AjusteSEIR(Pais,Metodo="dual_annealing"):
     point of a multidimensional grid of points, to find the global minimum of 
     the function.
     Muy lento y muy preciso
+    
+    Creado Jueves 3-06-2020 08:13:53 2020
+    @author: Fernando Mazzone
     """
-     
 
-    ############  Ler datos ##################################################
-    Poblacion=DatosPaises[Pais][0]
-    Data=ExtraerDatos(Pais,Poblacion)
-    Data=Data[:,:]/Poblacion #NOrmalizamos la poblacion total}
+    ############  Ler datos de datos fiteos####################################
+    Poblacion,st,R0_lim,t_corte_lim=load_fit_data(Pais)
+    Data=readData(Pais,Poblacion)
+    Data=Data[st:,:]/Poblacion #NOrmalizamos la poblacion total}
     t=np.arange(np.shape(Data)[0])
     
     
     
     #### Rangos
-    t_corte_lim=DatosPaises[Pais][1]
-    R0_lim=DatosPaises[Pais][2]
     rangos=t_corte_lim+R0_lim
     
     ########### Condicion Inicial 
     Y0=[Data[0,0],0.0,Data[0,1],Data[0,2]]
     
-    
-    
+   
     
     
     ################Elegir el método  
@@ -209,16 +169,6 @@ def AjusteSEIR(Pais,Metodo="dual_annealing"):
     fig.text(0.75,0.2,r"$Error ajuste=$"+"%10.2e"%error_out+"h",fontsize=18)
 
 
-
-
-
-
-
-
-
-
-
-
 ############ Funciones Auxiliares ###########################################
 ############# Función Heaviside suave ########################################
 def He(t,epsilon):
@@ -255,38 +205,40 @@ def Error(x,*params):
     Sol = odeint(SEIR,Y0 ,s, args=(s_corte,R0))
     return sum(((np.abs(Data[:,4]-Sol[:,2]-Sol[:,3]-Sol[:,1])))**2)
 
-def ExtraerDatos(Pais,Poblacion):
-    if Pais=='USA':
-        I_data_acum=np.array([])
-        I_data=np.array([])
-        M_data=np.array([])
-        R_data=np.array([])
-        S_data=np.array([])
 
-        with open('DataUSA.csv') as csvfile:
+
+def readData(Pais,Poblacion):
+    direc="/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Epidemic/"
+    if Pais=="Tierra":
+        with open(direc+'DataConfirmados.csv') as csvfile:
+            reader = csv.reader(csvfile)
+            next(reader)
+            I_data_acum,M_data,R_data=0,0,0
+            for row in reader:
+                I_data_acum+=np.array([float(i) for i in row[5:]])
+        with open(direc+'DataMuertos.csv') as csvfile:
             reader = csv.reader(csvfile)
             next(reader)
             for row in reader:
-                I_data_acum=np.append(I_data_acum,float(row[2]))
-                M_data=np.append(M_data,float('0'+row[14]))
-                R_data=np.append(R_data,float('0'+row[11]))
-                
-            I_data_acum=np.flip(I_data_acum)
-            M_data=np.flip(M_data)
-            R_data=np.flip(R_data)
+                M_data+=np.array([float(i) for i in row[5:]])
+        with open(direc+'DataRecuperados.csv') as csvfile:
+            reader = csv.reader(csvfile)
+            next(reader)
+            for row in reader:
+                R_data+=np.array([float(i) for i in row[5:]])
     else:
-        with open('DataConfirmados.csv') as csvfile:
+        with open(direc+'DataConfirmados.csv') as csvfile:
             reader = csv.reader(csvfile)
             I_data_acum,M_data,R_data=0,0,0
             for row in reader:
                 if Pais in row:
                     I_data_acum+=np.array([float(i) for i in row[5:]])
-        with open('DataMuertos.csv') as csvfile:
+        with open(direc+'DataMuertos.csv') as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
                 if Pais in row:
                     M_data+=np.array([float(i) for i in row[5:]])
-        with open('DataRecuperados.csv') as csvfile:
+        with open(direc+'/DataRecuperados.csv') as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
                 if Pais in row:
@@ -302,6 +254,7 @@ def ExtraerDatos(Pais,Poblacion):
     I_data=I_data_acum-(M_data+R_data)
     S_data=Poblacion-I_data_acum #S=Poblacion-Infectados Acumulados
     Ind=I_data_acum>0
+    
     k=sum(Ind)
     #Data=[S,I,R,M,Iacum]
     Data=np.zeros([k,5])
@@ -312,3 +265,75 @@ def ExtraerDatos(Pais,Poblacion):
     Data[:,4]=I_data_acum[Ind]
 
     return Data
+
+##########################################################################
+##################   Cargar rangos de ajuste, poblacion ##################
+##########################################################################
+
+def load_fit_data(Pais):
+    direc="/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Countries/"
+    CountryData=[]
+    with open(direc+Pais+'.csv') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            CountryData.append(row)
+    Poblacion=float(CountryData[0][0])
+    st=int(CountryData[1][0])
+    R0_lim=[[float(i) for i in H[:2]] for H in CountryData[2:]]
+    t_corte_lim=[[float(i) for i in H[2:]] for H in CountryData[3:]]
+    return Poblacion,st,R0_lim,t_corte_lim
+
+
+
+
+##########################################################################
+################  Descargar Datos ########################################
+##########################################################################
+
+
+def downloadData():
+    MiDirectorio='/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Epidemic/'
+    urlb='https://data.humdata.org/hxlproxy/api/data-preview.csv?url=https%3A%2F%2Fraw.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data%2Fcsse_covid_19_time_series%2F'
+    url1 = 'time_series_covid19_confirmed_global.csv&filename=time_series_covid19_confirmed_global.csv'
+    url2 = 'time_series_covid19_deaths_global.csv&filename=time_series_covid19_deaths_global.csv'
+    url3 = 'time_series_covid19_recovered_global.csv&filename=time_series_covid19_recovered_global.csv'
+    
+    
+    myfile = requests.get(urlb+url1)
+    open(MiDirectorio+'DataConfirmados.csv', 'wb').write(myfile.content)
+    
+    myfile = requests.get(urlb+url2)
+    open(MiDirectorio+'DataMuertos.csv', 'wb').write(myfile.content)
+    
+    myfile = requests.get(urlb+url3)
+    open(MiDirectorio+'DataRecuperados.csv', 'wb').write(myfile.content)
+    
+    
+    """
+    urlUSA = 'https://covidtracking.com/api/v1/us/daily.csv'
+    
+    myfile = requests.get(urlUSA)
+    open(MiDirectorio+'DataUSA.csv', 'wb').write(myfile.content)
+    """
+
+#Paquetes necesarios. 
+import numpy as np
+from scipy.integrate import odeint 
+import matplotlib.pyplot as plt
+import scipy.optimize
+import csv
+import requests
+
+
+plt.rc('text', usetex=True)
+
+
+    
+#################  ASIGNACION PARAMETROS GLOBALES#########################
+##########################################################################
+
+alpha=1/3.0 #1/Periodo infecciosidad  
+k=1/5.0     #1/Periodo exposicion 
+k_ast=k/alpha # adimensionalización
+epsilon=2.0  #AMPLITUD DÍAS TANSICION R0
+
