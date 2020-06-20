@@ -4,9 +4,24 @@
 El archivo FitSEIR_UNRC.py contiene varias funciones con la finalidad de descargar datos actualizados sobre la pandemia de COVID-19 y ajustar los parámetros de   un modelo SEIR a estos datos.
 
 **Ejemplo de uso**
+
+**Datos Nacionales**
+
 Desde una consola de python (ipython o jupyter-qtconsole)
 
-    >> from FitSEIR_UNRC import downloadData, FitSEIR
+    >> from FitSEIR_ARG import FitSEIR_ARG
+
+Importa las función FItSEIR_ARG para ajustar el modelo SEIR a los datos argentinos de la pandemia.
+
+    >> FitSEIR_ARG(Provincia,Metodo)
+
+Ajusta un modelo SEIR a los datos de "Provincia". "Provincia" es  el nombre de una provincia Argentina.  "Metodo" es el método de optimización que se quiere utilizar,las opciones posibles se indican debajo
+
+
+**Datos Internacionales**
+Desde una consola de python (ipython o jupyter-qtconsole)
+
+    >> from FitSEIR_World import FitSEIR, downloadData
 
 Importa las funciones downloadData para desacragar datos y FItSEIR para ajustar el modelo SEIR a los datos de la pandemia.
 
@@ -16,7 +31,11 @@ Descarga los datos de infectados, recuperados y muertos de todos los paises del 
 
     >> FitSEIR(Pais,Metodo)
 
-Ajusta un modelo SEIR a los datos de "Pais". "Pais" es  el nombre en ingles del país que se quiere analizar.  "Metodo" es el método de optimización que se quiere utilizar,las opciones posibles son
+Ajusta un modelo SEIR a los datos de "Pais". "Pais" es  el nombre en ingles del país que se quiere analizar.  "Metodo" es el método de optimización que se quiere utilizar.
+
+**Métodos de optimización**
+
+Se usan métodos de optimización global de la librería ["scipy/optimization"](https://docs.scipy.org/doc/scipy/reference/optimize.html). Los optimizadores globales son lentos de aplicar pero evitan confundir el resultado con mínimos locales. Los métodos que se pueden usar son:
 
 * ["dual_annealing"](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.dual_annealing.html#scipy.optimize.dual_annealing): es la opción por defecto, es un minimizador global estocástico.  Produce un buen resultado en un tiempo algo prolongado pero aceptable
 * ["shgo"](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.shgo.html): Produce un resultado rápido pero suele ser no muy bueno.
