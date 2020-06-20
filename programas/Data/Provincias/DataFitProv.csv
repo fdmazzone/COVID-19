@@ -1,0 +1,21 @@
+Provincia,Poblacion,R0_min,R0_max,tc_min,tc_max
+Buenos Aires, 16.66e6,,,,
+Buenos Aires,,3.0,5.0,,
+Buenos Aires,,1.0,2.0,15.0,20.0
+Buenos Aires,,1.0,2.0,65.0,75.0
+Córdoba,3567654.0,,,,
+Córdoba,,3.0,5.0,,
+Córdoba,,0.5,2.0,15.0,25.0
+Córdoba,,0.5,2.0,65.0,85.0
+Santa Fe,3567654.0,,,,
+Santa Fe,,3.0,5.0,,
+Santa Fe,,1.0,2.0,15.0,25.0
+Santa Fe,,1.0,2.0,65.0,85.0
+CABA, 2.89e6,,,,
+CABA,,3.0,5.0,,
+CABA,,0.5,1.5,15.0,20.0
+CABA,,1.0,3.0,35.0,55.0
+CABA,,1.0,2.0,65.0,80.0
+Chaco,1.13e6,,,,
+Chaco,,3.0,5.0,,
+Chaco,,1.0,2.0,10.0,35.0

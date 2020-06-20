@@ -269,20 +269,22 @@ def readData(Pais,Poblacion):
 ##########################################################################
 ##################   Cargar rangos de ajuste, poblacion ##################
 ##########################################################################
-
 def load_fit_data(Pais):
-    direc="/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Countries/"
-    CountryData=[]
-    with open(direc+Pais+'.csv') as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            CountryData.append(row)
-    Poblacion=float(CountryData[0][0])
-    st=int(CountryData[1][0])
-    R0_lim=[[float(i) for i in H[:2]] for H in CountryData[2:]]
-    t_corte_lim=[[float(i) for i in H[2:]] for H in CountryData[3:]]
-    return Poblacion,st,R0_lim,t_corte_lim
-
+    filepath="/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Countries/countries.csv"
+    DataFitWorld=pd.read_csv(filepath)
+    I=DataFitWorld.Pais==Pais
+    DataFit=DataFitWorld[I]
+    i0=DataFit.Poblacion.index[0]
+    Poblacion=DataFit.Poblacion.loc[i0]
+    st=DataFit.Poblacion.loc[i0+1]
+    R0_min=DataFit.R0_min.loc[i0+2:]
+    R0_max=DataFit.R0_max.loc[i0+2:]
+    Indice=DataFit.index[2:]
+    R0_lim=[(R0_min[i],R0_max[i]) for i in Indice]
+    tc_min=DataFit.tc_min.loc[i0+3:]
+    tc_max=DataFit.tc_max.loc[i0+3:]
+    t_corte_lim=[(tc_min[i],tc_max[i]) for i in Indice[1:]]    
+    return Poblacion,int(st),R0_lim,t_corte_lim
 
 
 
@@ -323,7 +325,7 @@ import matplotlib.pyplot as plt
 import scipy.optimize
 import csv
 import requests
-
+import pandas as pd
 
 plt.rc('text', usetex=True)
 
