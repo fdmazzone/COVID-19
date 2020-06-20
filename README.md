@@ -38,6 +38,13 @@ SEIR Susceptibles-Expuestos-Infectados-Removidos por la enfermedad.  El modelo e
 
 Sólo es necesario modelar las tres primeras  ecuaciones
 
+**Requerimientos**
+
+Los programas ajustando el modelo a los datos de Argentina requieren descargar desde ["Ministerio de Salud"](http://datos.salud.gob.ar/dataset/covid-19-casos-registrados-en-la-republica-argentina/archivo/fd657d02-a33a-498b-a91b-2ef1a68b8d16) la base de datos de casos COVID-19.
+
+
 **Resultado**
 
-![](Imagenes/fit_SEIR_Italia_13-06-2020.png)
+![](Imagenes/18-junio-2020-Buenos-Aires.png)
+![](Imagenes/18-junio-2020-CABA.png)
+![](Imagenes/18-junio-2020-Córdoba.png)
