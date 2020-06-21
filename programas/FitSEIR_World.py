@@ -126,7 +126,9 @@ def FitSEIR(Pais,Metodo="dual_annealing"):
     ax.plot(tt,(I+E+R)*Poblacion,t,Data[:,4]*Poblacion,'o')
     ax.set(yscale='log')
     ax.set(ylim=(1,Poblacion))
-    ax.set_title(Pais,fontsize=26)
+    
+    today = date.today()
+    ax.set_title(Pais+'  '+str(today),fontsize=26)
     ax.legend(('I Modelo','I datos'),shadow=True, loc=(.8, .8),\
               handlelength=1.5, fontsize=16)
     
@@ -326,6 +328,7 @@ import scipy.optimize
 import csv
 import requests
 import pandas as pd
+from datetime import date
 
 plt.rc('text', usetex=True)
 

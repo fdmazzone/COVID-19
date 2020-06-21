@@ -141,7 +141,8 @@ def FitSEIR_ARG(Provincia,Metodo="dual_annealing"):
     ax.plot(t_tics,(I+E+R)*Poblacion,tg,Ia*Poblacion,'o')
     ax.set(yscale='log')
     ax.set(ylim=(1,Poblacion))
-    ax.set_title(unicode(Provincia,"utf-8"),fontsize=26)
+    today = date.today()
+    ax.set_title(unicode(Provincia,"utf-8")+'  '+str(today),fontsize=26)
     ax.legend(('I Modelo','I datos'),shadow=True, loc=(.8, .8),\
               handlelength=1.5, fontsize=16)
     
@@ -244,7 +245,31 @@ def readDataArg(Provincia):
     return I_acum,I_diario, t_g
 
 
+def download():
+    filename="/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Epidemic/Covid19Casos.csv"
+    url=u'https://sisa.msal.gov.ar/datos/descargas/covid-19/files/Covid19Casos.csv'
+    with open(filename, 'wb') as f:
+        response = requests.get(url, stream=True)
+        total = response.headers.get('content-length')
 
+        if total is None:
+            f.write(response.content)
+        else:
+            downloaded = 0
+            total = int(total)
+            for data in response.iter_content(chunk_size=max(int(total/1000), 1024*1024)):
+                downloaded += len(data)
+                f.write(data)
+                done = int(50*downloaded/total)
+                sys.stdout.write('\r[{}{}]'.format('█' * done, '.' * (50-done)))
+                sys.stdout.flush()
+    sys.stdout.write('\n')
+    f= open(filename, 'rb')
+    content= unicode(f.read(), 'utf-16')
+    f.close()
+    f= open(filename, 'wb')
+    f.write(content.encode('utf-8'))
+    f.close()
 ##########################################################################
 ##################   Cargar rangos de ajuste, poblacion ##################
 ##########################################################################
@@ -276,6 +301,9 @@ import matplotlib.pyplot as plt
 import scipy.optimize
 import numpy as np
 import pandas as pd
+from datetime import date
+import requests
+
 #def readDataARG():
 plt.rc('text', usetex=True)
 

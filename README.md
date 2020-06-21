@@ -9,9 +9,13 @@ El archivo FitSEIR_UNRC.py contiene varias funciones con la finalidad de descarg
 
 Desde una consola de python (ipython o jupyter-qtconsole)
 
-    >> from FitSEIR_ARG import FitSEIR_ARG
+    >> from FitSEIR_ARG import FitSEIR_ARG, download
 
-Importa las función FItSEIR_ARG para ajustar el modelo SEIR a los datos argentinos de la pandemia.
+Importa las funciones FItSEIR_ARG  y download. La función
+
+    >> download()
+
+descarga datos actualizados de la pandemia desde Ministerio de Salud de la República Argentina.
 
     >> FitSEIR_ARG(Provincia,Metodo)
 
@@ -58,9 +62,15 @@ SEIR Susceptibles-Expuestos-Infectados-Removidos por la enfermedad.  El modelo e
 Sólo es necesario modelar las tres primeras  ecuaciones
 
 **Requerimientos**
+Se utilizan las siguientes librerías de Python
+1. [Numpy](https://numpy.org/)
+2. [SciPy](https://www.scipy.org/)
+3. [MatPlotLib](https://matplotlib.org/)
+4. [Pandas](https://pandas.pydata.org/)
+5. [Datetime](https://docs.python.org/3/library/datetime.html)
+6. [Requests](https://pypi.org/project/requests/)
 
-Los programas ajustando el modelo a los datos de Argentina requieren descargar desde ["Ministerio de Salud"](http://datos.salud.gob.ar/dataset/covid-19-casos-registrados-en-la-republica-argentina/archivo/fd657d02-a33a-498b-a91b-2ef1a68b8d16) la base de datos de casos COVID-19.
-
+La distribución de software libre [anaconda](https://www.anaconda.com/) instala todos estos recursos.
 
 **Resultado**
 
