@@ -129,11 +129,11 @@ def FitSEIR_ARG(Provincia,Metodo="dual_annealing"):
     sol =  odeint(SEIR,Y0 ,s, args=(s_corte_opt,R0_opt))
     S,E,I,R=sol[:,0],sol[:,1],sol[:,2],sol[:,3]
     
-    
+
     ##########################################################################
     ################## Creacion graficas######################################
     ##########################################################################
-    
+
     fig = plt.figure(figsize=(12,8))
     
     ###  Grafica de infectados acumulados###################################
@@ -142,7 +142,10 @@ def FitSEIR_ARG(Provincia,Metodo="dual_annealing"):
     ax.set(yscale='log')
     ax.set(ylim=(1,Poblacion))
     today = date.today()
-    ax.set_title(unicode(Provincia,"utf-8")+'  '+str(today),fontsize=26)
+
+ 
+    ax.set_title(unicode(Provincia,"utf-8"),fontsize=26)
+
     ax.legend(('I Modelo','I datos'),shadow=True, loc=(.8, .8),\
               handlelength=1.5, fontsize=16)
     
@@ -156,7 +159,7 @@ def FitSEIR_ARG(Provincia,Metodo="dual_annealing"):
               shadow=True, loc=(.7, .7), handlelength=1.5, fontsize=16)
     
     ###############Datos a la derecha de la gráfica
-    
+
     I_max=max(I)*Poblacion
     S0=S[int(t_corte_opt[-1])]
     
@@ -176,12 +179,14 @@ def FitSEIR_ARG(Provincia,Metodo="dual_annealing"):
     t_exp=1/k
     
     formato=formato+"%10.2f"
+    fig.text(0.75,.55,"Fecha: "+str(today),fontsize=18)
     fig.text(0.75,0.45,r"$\mathcal{R}_0=$"+formato%tuple(R0_opt),fontsize=18)
     fig.text(0.75,0.4,r"$t_{inf}=$"+"%10.2f"%t_inf+"d",fontsize=18)
     fig.text(0.75,0.35,r"$t_{exp}=$"+"%10.2f"%t_exp+"d",fontsize=18)
     fig.text(0.75,0.30,r"$I_{max}=$"+"%10.2e"%I_max+"h",fontsize=18)
     fig.text(0.75,0.25,"$Total Inf.=$"+"%10.2e"%I_acum_inf+"h",fontsize=18)
-    error_out=error_opt*Poblacion
+    error_out=np.sqrt(error_opt)*Poblacion
+  
     fig.text(0.75,0.2,r"$Error ajuste=$"+"%10.2e"%error_out+"h",fontsize=18)
 
 
@@ -223,8 +228,7 @@ def Error(x,*params):
 
 
 def readDataArg(Provincia):
-    filepath="/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Epidemic/Covid19Casos.csv"
-    Data=pd.read_csv(filepath)   
+    Data=pd.read_csv(fileData)   
     I1=Data.residencia_provincia_nombre==Provincia   
     I2=Data.clasificacion_resumen=="Confirmado" 
     DataProv=Data[I1 & I2] 
@@ -236,7 +240,7 @@ def readDataArg(Provincia):
     I_diario=CasosDia.to_numpy()
     t_g=CasosDia.index.to_numpy()
     #t=(tg-tg[0])/24.0/3600.0/1.0e9
-    
+    #DataProv.sort_values('fecha_apertura',ascending=False).head(20)
     #CasosDia.plot(title=Provincia.decode('utf-8') ,marker='o')
     #plt.ylabel("Casos Diarios")
     #CasosAcum.plot(title=Provincia.decode('utf-8') ,marker='o')
@@ -246,9 +250,7 @@ def readDataArg(Provincia):
 
 
 def download():
-    filename="/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Epidemic/Covid19Casos.csv"
-    url=u'https://sisa.msal.gov.ar/datos/descargas/covid-19/files/Covid19Casos.csv'
-    with open(filename, 'wb') as f:
+    with open(fileData, 'wb') as f:
         response = requests.get(url, stream=True)
         total = response.headers.get('content-length')
 
@@ -264,10 +266,10 @@ def download():
                 sys.stdout.write('\r[{}{}]'.format('█' * done, '.' * (50-done)))
                 sys.stdout.flush()
     sys.stdout.write('\n')
-    f= open(filename, 'rb')
+    f= open(fileData, 'rb')
     content= unicode(f.read(), 'utf-16')
     f.close()
-    f= open(filename, 'wb')
+    f= open(fileData, 'wb')
     f.write(content.encode('utf-8'))
     f.close()
 ##########################################################################
@@ -275,7 +277,6 @@ def download():
 ##########################################################################
 
 def load_fit_data(Provincia):
-    filepath='/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Provincias/DataFitProv.csv'
     DataFitArg=pd.read_csv(filepath)
     I=DataFitArg.Provincia==Provincia
     DataFitProv=DataFitArg[I]
@@ -299,16 +300,25 @@ import numpy as np
 from scipy.integrate import odeint 
 import matplotlib.pyplot as plt
 import scipy.optimize
-import numpy as np
 import pandas as pd
 from datetime import date
 import requests
+import sys
+import os
 
+
+
+############## DIRECTORIO Y LINKS ##############################
+################################################################
+dir_working=unicode(os.getcwd(),'utf-8')
+fileData=dir_working+u"/Data/Epidemic/Covid19Casos.csv"
+url=u'https://sisa.msal.gov.ar/datos/descargas/covid-19/files/Covid19Casos.csv'  
+filepath=dir_working+u'/Data/Provincias/DataFitProv.csv'
+  
 #def readDataARG():
-plt.rc('text', usetex=True)
-
-
-
+#plt.rc('text', usetex=True)
+#plt.rc('font', family='Arial')
+#FitSEIR_ARG('Córdoba','shgo')
 #################  ASIGNACION PARAMETROS GLOBALES#########################
 ##########################################################################
 
@@ -316,4 +326,3 @@ alpha=1/3.0 #1/Periodo infecciosidad
 k=1/5.0     #1/Periodo exposicion 
 k_ast=k/alpha # adimensionalización
 epsilon=1.0  #AMPLITUD DÍAS TANSICION R0
-

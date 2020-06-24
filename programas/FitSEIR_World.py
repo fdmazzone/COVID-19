@@ -167,7 +167,7 @@ def FitSEIR(Pais,Metodo="dual_annealing"):
     fig.text(0.75,0.35,r"$t_{exp}=$"+"%10.2f"%t_exp+"d",fontsize=18)
     fig.text(0.75,0.30,r"$I_{max}=$"+"%10.2e"%I_max+"h",fontsize=18)
     fig.text(0.75,0.25,"$Total Inf.=$"+"%10.2e"%I_acum_inf+"h",fontsize=18)
-    error_out=error_opt*Poblacion
+    error_out=np.sqrt(error_opt)*Poblacion
     fig.text(0.75,0.2,r"$Error ajuste=$"+"%10.2e"%error_out+"h",fontsize=18)
 
 
@@ -210,7 +210,6 @@ def Error(x,*params):
 
 
 def readData(Pais,Poblacion):
-    direc="/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Epidemic/"
     if Pais=="Tierra":
         with open(direc+'DataConfirmados.csv') as csvfile:
             reader = csv.reader(csvfile)
@@ -272,7 +271,6 @@ def readData(Pais,Poblacion):
 ##################   Cargar rangos de ajuste, poblacion ##################
 ##########################################################################
 def load_fit_data(Pais):
-    filepath="/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Countries/countries.csv"
     DataFitWorld=pd.read_csv(filepath)
     I=DataFitWorld.Pais==Pais
     DataFit=DataFitWorld[I]
@@ -296,7 +294,6 @@ def load_fit_data(Pais):
 
 
 def downloadData():
-    MiDirectorio='/home/fernando/fer/Investigación/Trabajo en curso/COVID-19/programas/Data/Epidemic/'
     urlb='https://data.humdata.org/hxlproxy/api/data-preview.csv?url=https%3A%2F%2Fraw.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data%2Fcsse_covid_19_time_series%2F'
     url1 = 'time_series_covid19_confirmed_global.csv&filename=time_series_covid19_confirmed_global.csv'
     url2 = 'time_series_covid19_deaths_global.csv&filename=time_series_covid19_deaths_global.csv'
@@ -304,20 +301,20 @@ def downloadData():
     
     
     myfile = requests.get(urlb+url1)
-    open(MiDirectorio+'DataConfirmados.csv', 'wb').write(myfile.content)
+    open(direc+'DataConfirmados.csv', 'wb').write(myfile.content)
     
     myfile = requests.get(urlb+url2)
-    open(MiDirectorio+'DataMuertos.csv', 'wb').write(myfile.content)
+    open(direc+'DataMuertos.csv', 'wb').write(myfile.content)
     
     myfile = requests.get(urlb+url3)
-    open(MiDirectorio+'DataRecuperados.csv', 'wb').write(myfile.content)
+    open(direc+'DataRecuperados.csv', 'wb').write(myfile.content)
     
     
     """
     urlUSA = 'https://covidtracking.com/api/v1/us/daily.csv'
     
     myfile = requests.get(urlUSA)
-    open(MiDirectorio+'DataUSA.csv', 'wb').write(myfile.content)
+    open(direc+'DataUSA.csv', 'wb').write(myfile.content)
     """
 
 #Paquetes necesarios. 
@@ -341,4 +338,13 @@ alpha=1/3.0 #1/Periodo infecciosidad
 k=1/5.0     #1/Periodo exposicion 
 k_ast=k/alpha # adimensionalización
 epsilon=2.0  #AMPLITUD DÍAS TANSICION R0
+import os
 
+
+
+############## DIRECTORIO Y LINKS ##############################
+################################################################
+dir_working=unicode(os.getcwd(),'utf-8')
+
+direc=dir_working+"/Data/Epidemic/"
+filepath=dir_working+"/Data/Countries/countries.csv"

@@ -1,11 +1,41 @@
 # COVID-19-UNRC
-<h2> Paquete para modelizar la epidemia COVID-19 </h2>
+<h2> Librería para modelizar y visualizar la epidemia COVID-19 </h2>
 
-El archivo FitSEIR_UNRC.py contiene varias funciones con la finalidad de descargar datos actualizados sobre la pandemia de COVID-19 y ajustar los parámetros de   un modelo SEIR a estos datos.
+Se proveen tres modulos.
+
+* FitSEIR_World: contiene varias funciones con la finalidad de descargar datos mundiales actualizados sobre la pandemia de COVID-19 y ajustar los parámetros de   un modelo SEIR a estos datos.
+
+* FitSEIR_ARG:  contiene varias funciones con la finalidad de descargar datos del [Ministerio de Salud de la República Argentina](https://www.argentina.gob.ar/salud) actualizados sobre la pandemia de COVID-19 y ajustar los parámetros de   un modelo SEIR a estos datos.
+
+* MapCOVID: contiene funciones para mostrar en mapas la situación de la pandemia en la República Argentina.
+
 
 **Ejemplo de uso**
 
+En todos los ejemplos debajo se asume que estamos en una terminal o consola de comandos posicionados en el directorio donde se descargaron los archivos.
+
+**Mapas**
+
+Se recomienda tener actualizada la base de datos de contagios como se señala en la sección [Datos Nacionales](#item1).
+
+Para importar la función que hace mapas.
+
+    >> from MapCOVID import MapaContagios
+
+Para confeccionar el mapa
+
+    >> MapaContagios(Provincia)
+
+donde "Provincia" indica el nombre de una provincia Argentina. El resultado es el siguiente
+
+![SEIR](Imagenes/EjemplosMapas.png)
+
+Se muestra la distribución geográfica de los infectados de la provincia.
+
+
+<a name=”item1″></a>
 **Datos Nacionales**
+
 
 Desde una consola de python (ipython o jupyter-qtconsole)
 
@@ -69,10 +99,12 @@ Se utilizan las siguientes librerías de Python
 4. [Pandas](https://pandas.pydata.org/)
 5. [Datetime](https://docs.python.org/3/library/datetime.html)
 6. [Requests](https://pypi.org/project/requests/)
+7. [sys](https://docs.python.org/3/library/sys.html)
+8. [os](https://docs.python.org/3/library/os.html)
 
 La distribución de software libre [anaconda](https://www.anaconda.com/) instala todos estos recursos.
 
-**Resultado**
+**Resultado**<a name=”item1″></a>
 
 ![](Imagenes/18-junio-2020-Buenos-Aires.png)
 ![](Imagenes/18-junio-2020-CABA.png)
