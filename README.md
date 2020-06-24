@@ -20,7 +20,7 @@ Se recomienda tener actualizada la base de datos de contagios como se señala en
 
 Para importar la función que hace mapas.
 
-    >> from MapCOVID import MapaContagios
+    >> from MapCOVID import MapaContagios, MapaTest
 
 Para confeccionar el mapa
 
@@ -35,10 +35,19 @@ Se muestra la distribución geográfica de los confirmados acumulados de la prov
 Llamando a la función con la opción dia=True
 
     >> MapaContagios(Provincia, dia=True)
-    
+
 se hace un mapa similar correspondiente a los contagios del último día.
 
-<a name=”item1″></a>
+La función
+
+    >>> MapaTest("Buenos Aires")
+
+Hace un mapa con la cantidad de testeos acumulados. Con la opción dia=True el mapa es realizado con los datos del último día.
+
+![SEIR](Imagenes/EjemplosMapas2.png)
+
+
+<a name="item1"></a>
 **Datos Nacionales**
 
 
