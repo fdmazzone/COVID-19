@@ -87,11 +87,17 @@ Se usan métodos de optimización global de la librería ["scipy/optimization"](
 SEIR Susceptibles-Expuestos-Infectados-Removidos por la enfermedad.  El modelo es básicamente el de sección 2.5 de [BCF2019].
 
 ![SEIR](Imagenes/SEIR.png)
+
 ![](Imagenes/Formulas.png)
 
 Sólo es necesario modelar las tres primeras  ecuaciones
 
-**Requerimientos**
+### Requerimientos ###
+
+**Bases Externas**
+
+Los programas implementan funciones para descargar los datos de la infección que cambian diariamente. La confección de mapas requiere base geográficas que es necesario descargar desde el [Instituto Geográfico Nacional](https://www.ign.gob.ar/NuestrasActividades/InformacionGeoespacial/CapasSIG). Las capas necesarios son los archivos en formato GeoJSON correspondientes a [departamentos](http://ramsac.ign.gob.ar/operaciones_sig/shp_from_geoserver/download.php?f=Z2VvanNvbjo6ZGVwYXJ0YW1lbnRvLnppcA%3D%3D) y [provincias](http://ramsac.ign.gob.ar/operaciones_sig/shp_from_geoserver/download.php?f=Z2VvanNvbjo6cHJvdmluY2lhLnppcA%3D%3D). Los archivos descargados se deben guardar en la carpeta programas/Data/GeoData.   
+
 Se utilizan las siguientes librerías de Python
 1. [Numpy](https://numpy.org/)
 2. [SciPy](https://www.scipy.org/)
