@@ -8,7 +8,7 @@ Created on Mon Jun 15 14:04:23 2020
 
 
 
-def MapaContagios(Provincia):
+def MapaContagios(Provincia, dia=False):
     """
         Hace un mapa de la provincia dividida por departamentos y colorea con 
         intensidades acorde a la cantidad de infectados totales de cada 
@@ -26,9 +26,11 @@ def MapaContagios(Provincia):
     MapaProv.insert(9, "Infectados", 0.0)#isertar columna nueva
     MapaProv.index=MapaProv.in1
     
-    
-    
-    DataProv=readDataArg(Provincia)
+    DatosProv=readDataArg(Provincia)
+    if not dia:
+        DataProv=DatosProv[0]
+    else:
+        DataProv=DatosProv[1]
     DataI=DataProv.residencia_departamento_id.value_counts()
     fig, ax = plt.subplots(1, 1)
     divider = make_axes_locatable(ax)
@@ -67,10 +69,9 @@ def readDataArg(Provincia):
     DataProv=Data[I2 & I1] 
     CasosDia=DataProv.fecha_apertura.value_counts()
     #CasosDia=DataProv.fecha_inicio_sintomas.value_counts()
-    CasosDia.index = pd.to_datetime(CasosDia.index)
-    CasosDia=CasosDia.sort_index()
-    CasosAcum=CasosDia.cumsum()
-    return DataProv
+    IndF=DataProv.fecha_apertura.index[-1]
+    DataProvD=DataProv[DataProv.fecha_apertura==DataProv.fecha_apertura[IndF]]
+    return DataProv, DataProvD
 
 
 #################  LIBRERIAS   ###############################################

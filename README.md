@@ -30,8 +30,13 @@ donde "Provincia" indica el nombre de una provincia Argentina. El resultado es e
 
 ![SEIR](Imagenes/EjemplosMapas.png)
 
-Se muestra la distribución geográfica de los infectados de la provincia.
+Se muestra la distribución geográfica de los confirmados acumulados de la provincia distinguiendo departamentos acorde a la cantidad de contagios.
 
+Llamando a la función con la opción dia=True
+
+    >> MapaContagios(Provincia, dia=True)
+    
+se hace un mapa similar correspondiente a los contagios del último día.
 
 <a name=”item1″></a>
 **Datos Nacionales**
