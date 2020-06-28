@@ -20,31 +20,31 @@ Se recomienda tener actualizada la base de datos de contagios como se señala en
 
 Para importar la función que hace mapas.
 
-    >> from MapCOVID import MapaContagios, MapaTest
+    >> from MapCOVID import MapaCOVID
 
-Para confeccionar el mapa
+Para confeccionar un mapa de casos confirmados acumulados
 
-    >> MapaContagios(Provincia)
+    >> MapaCOVID(Provincia,campo='confirmado')
 
-donde "Provincia" indica el nombre de una provincia Argentina. El resultado es el siguiente
+donde "Provincia" indica el nombre de una provincia Argentina o la región del AMBA. El resultado es el siguiente
 
 ![SEIR](Imagenes/EjemplosMapas.png)
 
 Se muestra la distribución geográfica de los confirmados acumulados de la provincia distinguiendo departamentos acorde a la cantidad de contagios.
 
-Llamando a la función con la opción dia=True
+Llamando a la función con la opción fecha='AAAA-MM-DD' muestra los datos de la fecha consignada en 'AAAA-MM-DD'.
 
-    >> MapaContagios(Provincia, dia=True)
+    >> MapaContagios(Provincia,campo='confirmado',fecha='AAAA-MM-DD')
 
-se hace un mapa similar correspondiente a los contagios del último día.
+Sin la asignación campo='confirmado' el mapa corresponde a todos los testeo realizados
 
-La función
+    >> MapaCOVID("Córdoba")
 
-    >>> MapaTest("Buenos Aires")
+![](Imagenes/EjemplosMapas2.png)
 
-Hace un mapa con la cantidad de testeos acumulados. Con la opción dia=True el mapa es realizado con los datos del último día.
+    >> MapaCOVID("Tierra del Fuego  Antártida e Islas del Atlántico Sur",campo='confirmado')
 
-![SEIR](Imagenes/EjemplosMapas2.png)
+![](Imagenes/EjemplosMapas3.png)
 
 
 <a name="item1"></a>
