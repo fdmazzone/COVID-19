@@ -93,7 +93,7 @@ Ajusta un modelo SEIR a los datos de "Pais". "Pais" es  el nombre en ingles del 
 ![](Imagenes/18-junio-2020-Buenos-Aires.png)
 ![](Imagenes/18-junio-2020-CABA.png)
 ![](Imagenes/18-junio-2020-Córdoba.png)
-![](Imagenes/fit_SEIR_Italia_13-06-2020.png)
+![](Imagenes/fitSEIR_Italia_13-06-2020.png)
 
 
 **Métodos de optimización**
