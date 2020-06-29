@@ -77,23 +77,38 @@ Descarga los datos de infectados, recuperados y muertos de todos los paises del 
 
 <h2> Ajustando Modelo SEIR a los datos </h2>
 
-    >> from FitSEIR_ARG import FitSEIR_ARG
-    >> FitSEIR_ARG(Provincia,Metodo)
+<h3>Datos Nacionales</h3>
 
-Ajusta un modelo SEIR a los datos de "Provincia". "Provincia" es  el nombre de una provincia Argentina.  "Metodo" es el método de optimización que se quiere utilizar,las opciones posibles se indican debajo
+    >> from FitSEIR_ARG import FitSEIR_ARG
+    >> FitSEIR_ARG("Provincia",dpto="dpto_nam",Metodo="met_nam")
+
+Ajusta un modelo SEIR a los datos de "Provincia". "Provincia" es  el nombre de una provincia Argentina.  Opcionalmente, el argumento dpto="dpto_nam" ajusta datos del departamento "dpto_nam" de "Provincia". También opcionalmente, Metodo="met_nam" cambia el método de optimización que se quiere utilizar,las opciones posibles se indican debajo
+
+**Ejemplo**
+
+    >> FitSEIR_ARG("CABA")
+
+![](Imagenes/18-junio-2020-CABA.png)
+
+    >> FitSEIR_ARG("Buenos Aires",dpto='La Matanza')
+
+![Matanza](Imagenes/Matanza.png)
+
+<h3>Datos Internacionales</h3>
 
     >> from FitSEIR_World import FitSEIR
-    >> FitSEIR(Pais,Metodo)
+    >> FitSEIR(Pais,Metodo="met_nam")
 
-Ajusta un modelo SEIR a los datos de "Pais". "Pais" es  el nombre en ingles del país que se quiere analizar.  "Metodo" es el método de optimización que se quiere utilizar.
+Ajusta un modelo SEIR a los datos de "Pais". "Pais" es  el nombre en ingles del país que se quiere analizar. El argumento opcional Metodo="met_nam" modifica  el método de optimización.
 
+**Ejemplo**
 
-**Resultado**<a name=”item1″></a>
+    >> FitSEIR('Italy')
 
-![](Imagenes/18-junio-2020-Buenos-Aires.png)
-![](Imagenes/18-junio-2020-CABA.png)
-![](Imagenes/18-junio-2020-Córdoba.png)
 ![](Imagenes/fitSEIR_Italia_13-06-2020.png)
+
+
+
 
 
 **Métodos de optimización**

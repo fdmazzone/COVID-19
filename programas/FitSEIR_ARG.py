@@ -10,7 +10,7 @@ Created on Mon Jun 15 15:14:08 2020
 # -*- coding: utf-8 -*-
 
 
-def FitSEIR_ARG(Provincia,Metodo="dual_annealing"):
+def FitSEIR_ARG(Provincia,dpto=None,Metodo="dual_annealing"):
     
     """
     ##########################################################################
@@ -74,18 +74,17 @@ def FitSEIR_ARG(Provincia,Metodo="dual_annealing"):
     """
 
     ############  Ler datos de datos fiteos####################################
-    Poblacion,R0_lim,t_corte_lim=load_fit_data(Provincia)
+    if not dpto==None:
+        Poblacion,R0_lim,t_corte_lim=load_fit_data_dpto(Provincia,dpto)
+        Ia,Id,tg=readDataArg_dpto(Provincia, dpto)
+    else:
+        Poblacion,R0_lim,t_corte_lim=load_fit_data(Provincia)
+        Ia,Id,tg=readDataArg(Provincia)
     
     
-    
-    Ia,Id,tg=readDataArg(Provincia)
     t=(tg-tg[0])/24.0/3600.0/1.0e9/np.timedelta64(1,'ns')
-    
-    
-    
     Ia=Ia/Poblacion #NOrmalizamos la poblacion total}
-    
-    
+       
     
     #### Rangos
     rangos=t_corte_lim+R0_lim
@@ -134,20 +133,22 @@ def FitSEIR_ARG(Provincia,Metodo="dual_annealing"):
     ################## Creacion graficas######################################
     ##########################################################################
 
-    fig = plt.figure(figsize=(12,8))
+    fig = plt.figure(figsize=(14,10))
     
     ###  Grafica de infectados acumulados###################################
-    ax = plt.axes([0.1, 0.1, 0.6, 0.8])
+    ax = plt.axes([0.1, 0.1, 0.5, 0.8])
     ax.plot(t_tics,(I+E+R)*Poblacion,tg,Ia*Poblacion,'o')
     ax.set(yscale='log')
     ax.set(ylim=(1,Poblacion))
     today = date.today()
 
- 
-    ax.set_title(unicode(Provincia,"utf-8"),fontsize=26)
+    if not dpto==None:
+        ax.set_title(unicode(dpto,"utf-8"),fontsize=26)
+    else:
+        ax.set_title(unicode(Provincia,"utf-8"),fontsize=26)
 
-    ax.legend(('I Modelo','I datos'),shadow=True, loc=(.8, .8),\
-              handlelength=1.5, fontsize=16)
+    ax.legend(('I Modelo','I datos'),shadow=True, loc=(.0, .8),\
+              handlelength=1.5, fontsize=12)
     
     
     ############### Infectados diarios ######################################
@@ -156,7 +157,7 @@ def FitSEIR_ARG(Provincia,Metodo="dual_annealing"):
     Id_mod=k*Poblacion*E
     ax.plot(t_tics,Id_mod,tg,Id,'o')
     ax.legend(('Modelo','Confirmados acumulados','Modelo', 'Confirmados diarios'),\
-              shadow=True, loc=(.7, .7), handlelength=1.5, fontsize=16)
+              shadow=True, loc=(.1, .7), handlelength=1.5, fontsize=12)
     
     ###############Datos a la derecha de la gráfica
 
@@ -173,21 +174,21 @@ def FitSEIR_ARG(Provincia,Metodo="dual_annealing"):
     formato=""
     for j in t_corte_opt:
         formato+="%10.2f , "
-    fig.text(0.75,0.5,r"$t_{corte}=$"+formato%tuple(t_corte_opt),fontsize=18)
+    fig.text(0.7,0.5,r"$t_{corte}=$"+formato%tuple(t_corte_opt),fontsize=14)
     
     t_inf=1/alpha
     t_exp=1/k
     
     formato=formato+"%10.2f"
-    fig.text(0.75,.55,"Fecha: "+str(today),fontsize=18)
-    fig.text(0.75,0.45,r"$\mathcal{R}_0=$"+formato%tuple(R0_opt),fontsize=18)
-    fig.text(0.75,0.4,r"$t_{inf}=$"+"%10.2f"%t_inf+"d",fontsize=18)
-    fig.text(0.75,0.35,r"$t_{exp}=$"+"%10.2f"%t_exp+"d",fontsize=18)
-    fig.text(0.75,0.30,r"$I_{max}=$"+"%10.2e"%I_max+"h",fontsize=18)
-    fig.text(0.75,0.25,"$Total Inf.=$"+"%10.2e"%I_acum_inf+"h",fontsize=18)
+    fig.text(0.7,.55,"Fecha: "+str(today),fontsize=14)
+    fig.text(0.7,0.45,r"$\mathcal{R}_0=$"+formato%tuple(R0_opt),fontsize=14)
+    fig.text(0.7,0.4,r"$t_{inf}=$"+"%10.2f"%t_inf+"d",fontsize=14)
+    fig.text(0.7,0.35,r"$t_{exp}=$"+"%10.2f"%t_exp+"d",fontsize=14)
+    fig.text(0.7,0.30,r"$I_{max}=$"+"%10.2e"%I_max+"h",fontsize=14)
+    fig.text(0.7,0.25,"$Total Inf.=$"+"%10.2e"%I_acum_inf+"h",fontsize=14)
     error_out=np.sqrt(error_opt)*Poblacion
   
-    fig.text(0.75,0.2,r"$Error ajuste=$"+"%10.2e"%error_out+"h",fontsize=18)
+    fig.text(0.7,0.2,r"$Error ajuste=$"+"%10.2e"%error_out+"h",fontsize=14)
 
 
 ############ Funciones Auxiliares ###########################################
@@ -239,15 +240,22 @@ def readDataArg(Provincia):
     I_acum=CasosAcum.to_numpy()
     I_diario=CasosDia.to_numpy()
     t_g=CasosDia.index.to_numpy()
-    #t=(tg-tg[0])/24.0/3600.0/1.0e9
-    #DataProv.sort_values('fecha_apertura',ascending=False).head(20)
-    #CasosDia.plot(title=Provincia.decode('utf-8') ,marker='o')
-    #plt.ylabel("Casos Diarios")
-    #CasosAcum.plot(title=Provincia.decode('utf-8') ,marker='o')
-    #plt.ylabel("Casos Acumulados")
-    
     return I_acum,I_diario, t_g
 
+def readDataArg_dpto(Provincia, dpto_nam):
+    Data=pd.read_csv(fileData)   
+    I1=Data.residencia_provincia_nombre==Provincia
+    I2=Data.residencia_departamento_nombre==dpto_nam
+    I3=Data.clasificacion_resumen=="Confirmado" 
+    DataProv=Data[I1 & I2 & I3] 
+    CasosDia=DataProv.fecha_apertura.value_counts()
+    CasosDia.index = pd.to_datetime(CasosDia.index)
+    CasosDia=CasosDia.sort_index()
+    CasosAcum=CasosDia.cumsum()
+    I_acum=CasosAcum.to_numpy()
+    I_diario=CasosDia.to_numpy()
+    t_g=CasosDia.index.to_numpy()
+    return I_acum,I_diario, t_g
 
 def download():
     with open(fileData, 'wb') as f:
@@ -291,6 +299,24 @@ def load_fit_data(Provincia):
     t_corte_lim=[(tc_min[i],tc_max[i]) for i in Indice[1:]]    
     return Poblacion,R0_lim,t_corte_lim
 
+def load_fit_data_dpto(Provincia,dpto_nam):
+    Data_dpto=pd.read_csv(dir_working+'/Data/Poblacion/poblacion_dpto.csv')
+    I=Data_dpto.provincia_name==Provincia
+    I1=Data_dpto.nam==dpto_nam
+    Data_dpto=Data_dpto[I & I1].personas
+    Poblacion=float(Data_dpto[Data_dpto.index[0]])
+    DataFitArg=pd.read_csv(dir_working+'/Data/dptos/DataFitDptos.csv')
+    I=DataFitArg.Provincia==Provincia
+    I1=DataFitArg.nam==dpto_nam
+    DataFitProv=DataFitArg[I & I1]
+    i0=DataFitProv.index[0]
+    R0_min=DataFitProv.R0_min.loc[i0:]
+    R0_max=DataFitProv.R0_max.loc[i0:]
+    R0_lim=[(R0_min[i],R0_max[i]) for i in DataFitProv.index]
+    tc_min=DataFitProv.tc_min.loc[i0+1:]
+    tc_max=DataFitProv.tc_max.loc[i0+1:]
+    t_corte_lim=[(tc_min[i],tc_max[i]) for i in DataFitProv.index[1:]]    
+    return Poblacion,R0_lim,t_corte_lim
 
 
 
