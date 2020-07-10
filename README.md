@@ -1,14 +1,12 @@
-# COVID-19-UNRC
+# COVID-19
 <h1> Librería para modelizar y visualizar la epidemia COVID-19 </h1>
 
-Se proveen tres modulos, dos de modelización y uno de visualización.
+Se proveen dos modulos, uno de modelización y uno de visualización.
 
 
-* FitSEIR_World: contiene varias funciones con la finalidad de descargar datos mundiales actualizados sobre la pandemia de COVID-19 y ajustar los parámetros de   un modelo SEIR a estos datos.
+* FitSEIR.py: contiene varias funciones con la finalidad de descargar datos mundiales y Argentinos ([Ministerio de Salud de la República Argentina](https://www.argentina.gob.ar/salud)), actualizados sobre la pandemia de COVID-19 y ajustar los parámetros de   un modelo SEIR a estos datos.
 
-* FitSEIR_ARG:  contiene varias funciones con la finalidad de descargar datos del [Ministerio de Salud de la República Argentina](https://www.argentina.gob.ar/salud) actualizados sobre la pandemia de COVID-19 y ajustar los parámetros de   un modelo SEIR a estos datos.
-
-* MapCOVID: contiene funciones para mostrar en mapas la situación de la pandemia en la República Argentina.
+* MapCOVID.py: contiene funciones para mostrar en mapas la situación de la pandemia en la República Argentina.
 
 <h2> Módulo de visualización </h2>
 
@@ -54,11 +52,11 @@ Sin la asignación campo='confirmado' el mapa corresponde a todos los testeo rea
 
 Desde una consola de python (ipython o jupyter-qtconsole)
 
-    >> from FitSEIR_ARG import download
+    >> from FitSEIR import downloadARG
 
-Importa la función "download".
+Importa la función "downloadARG".
 
-    >> download()
+    >> downloadARG()
 
 descarga datos actualizados de la pandemia desde [ Ministerio de Salud de la República Argentina](http://datos.salud.gob.ar/dataset/covid-19-casos-registrados-en-la-republica-argentina/archivo/fd657d02-a33a-498b-a91b-2ef1a68b8d16)
 
@@ -67,43 +65,42 @@ descarga datos actualizados de la pandemia desde [ Ministerio de Salud de la Rep
 **Datos Internacionales**
 Desde una consola de python (ipython o jupyter-qtconsole)
 
-    >> from FitSEIR_World import downloadData
+    >> from FitSEIR import downloadWorld
 
-Importa la función downloadData para descargar datos desde [The Humanitarian Data Exchange](https://data.humdata.org/)
+Importa la función downloadWorld para descargar datos desde [The Humanitarian Data Exchange](https://data.humdata.org/)
 
     >> downloadData()
 
-Descarga los datos de infectados, recuperados y muertos de todos los paises del mundo.
+Descarga los datos de infectados, recuperados y muertos de distintos  paises del mundo.
 
 <h2> Ajustando Modelo SEIR a los datos </h2>
 
 <h3>Datos Nacionales</h3>
 
-    >> from FitSEIR_ARG import FitSEIR_ARG
-    >> FitSEIR_ARG("Provincia",dpto="dpto_nam",Metodo="met_nam")
+    >> from FitSEIR import FitSEIR
+    >> FitSEIR(Provincia="pcia_nam",dpto="dpto_nam",Metodo="met_nam")
 
-Ajusta un modelo SEIR a los datos de "Provincia". "Provincia" es  el nombre de una provincia Argentina.  Opcionalmente, el argumento dpto="dpto_nam" ajusta datos del departamento "dpto_nam" de "Provincia". También opcionalmente, Metodo="met_nam" cambia el método de optimización que se quiere utilizar,las opciones posibles se indican debajo
+Ajusta un modelo SEIR a los datos de "pcia_nam". "pcia_nam" es  el nombre de una provincia Argentina.  Opcionalmente, el argumento dpto="dpto_nam" ajusta datos del departamento "dpto_nam" de "pcia_nam". También opcionalmente, Metodo="met_nam" cambia el método de optimización que se quiere utilizar,las opciones posibles se indican debajo
 
 **Ejemplo**
 
-    >> FitSEIR_ARG("CABA")
+    >> FitSEIR(Provincia="CABA")
 
 ![](Imagenes/18-junio-2020-CABA.png)
 
-    >> FitSEIR_ARG("Buenos Aires",dpto='La Matanza')
+    >> FitSEIR(Provincia="Buenos Aires",dpto='La Matanza')
 
 ![Matanza](Imagenes/Matanza.png)
 
 <h3>Datos Internacionales</h3>
 
-    >> from FitSEIR_World import FitSEIR
-    >> FitSEIR(Pais,Metodo="met_nam")
+    >> FitSEIR(Pais="pais_nam",Metodo="met_nam")
 
-Ajusta un modelo SEIR a los datos de "Pais". "Pais" es  el nombre en ingles del país que se quiere analizar. El argumento opcional Metodo="met_nam" modifica  el método de optimización.
+Ajusta un modelo SEIR a los datos de "pais_nam". "pais_nam" es  el nombre en ingles del país que se quiere analizar. El argumento opcional Metodo="met_nam" modifica  el método de optimización.
 
 **Ejemplo**
 
-    >> FitSEIR('Italy')
+    >> FitSEIR(Pais='Italy')
 
 ![](Imagenes/fitSEIR_Italia_13-06-2020.png)
 
@@ -165,6 +162,6 @@ Se utilizan las siguientes
 6. [Datetime](https://docs.python.org/3/library/datetime.html)
 7. [Requests](https://pypi.org/project/requests/)
 8. [sys](https://docs.python.org/3/library/sys.html)
-9. [os](https://docs.python.org/3/library/os.html)
+
 
 La distribución de software libre [anaconda](https://www.anaconda.com/) instala la mayoría de estos recursos y un package manager que permite obtener aquellos que falten.
