@@ -6,39 +6,46 @@ Se proveen dos modulos, uno de modelización y uno de visualización.
 
 * FitSEIR.py: contiene varias funciones con la finalidad de descargar datos mundiales y Argentinos ([Ministerio de Salud de la República Argentina](https://www.argentina.gob.ar/salud)), actualizados sobre la pandemia de COVID-19 y ajustar los parámetros de   un modelo SEIR a estos datos.
 
-* MapCOVID.py: contiene funciones para mostrar en mapas la situación de la pandemia en la República Argentina.
+* MapaCOVID.py: contiene funciones para mostrar en mapas la situación de la pandemia en la República Argentina.
 
 <h2> Módulo de visualización </h2>
 
-**Ejemplo de uso**
+<h3>Función Mapa COVID</h3>
+
+    >>MapaCOVID(Provincia,campo=None,tipo="burbuja", fecha=None)
+
+Hace un mapa de la provincia dividida por departamentos en indica
+cantidad de casos confirmados con diagramas de burbuja o con un
+mapa colorpléctico.
+
+<h4>Parametros:</h4>
+
+* **Provincia:** str. Nombre de una provincia Argentina
+
+* **campo:** str. Si campo=None se consideran todas las entradas de la base correspondiendo a todos los test realizados. Si campo="confirmado", se cuentan los casos confirmados. Valor por defecto None
+
+* **tipo:** str. Tipo del gráfico "burbuja" o "colorpléctico".Valor por defecto "Burbuja"
+
+* **fecha:** tuple o None. Si fecha = None se consideran todos
+los casos, si fecha=("AAAA-MM-DD", "aaaa-mm-dd") se
+consideran los casos de entre las fechas estipuladas.
+Debe ser "AAAA-MM-DD"<= "aaaa-mm-dd". Valor por defecto
+None.
+
+<h4>Retorna:</h4> Mapa con distribución de casos o test. Diagrama de barras con cantidad de casos pr departamento. código y denominación de los departamentos.
 
 En todos los ejemplos debajo se asume que estamos en una terminal o consola de comandos posicionados en el directorio donde se descargaron los archivos. Se recomienda tener actualizada la base de datos de contagios como se señala en la sección [Datos Nacionales](#item1).
 
-Para importar la función principal.
+    >> from MapaCOVID import MapaCOVID
+    >> MapaCOVID("AMBA",campo='confirmado',fecha=('2020-07-01','2020-07-10'))
 
-    >> from MapCOVID import MapaCOVID
-
-Para confeccionar un mapa de casos confirmados acumulados
-
-    >> MapaCOVID(Provincia,campo='confirmado')
-
-donde "Provincia" indica el nombre de una provincia Argentina o la región del AMBA. El resultado es el siguiente
+El resultado es el siguiente
 
 ![AMBA-confirmados](Imagenes/EjemplosMapas.png)
 
-Se muestra la distribución geográfica de los casos confirmados acumulados de la provincia distinguiendo cromáticamente departamentos acorde a la cantidad de contagios.
+Sin la asignación campo='confirmado' el mapa corresponde a todos los testeos realizados
 
-Llamando a la función con la opción fecha='AAAA-MM-DD' muestra los datos de la fecha consignada en 'AAAA-MM-DD'.
-
-    >> MapaContagios(Provincia,campo='confirmado',fecha='AAAA-MM-DD')
-
-Sin la asignación campo='confirmado' el mapa corresponde a todos los testeo realizados
-
-    >> MapaCOVID("Córdoba")
-
-![](Imagenes/EjemplosMapas2.png)
-
-    >> MapaCOVID("Tierra del Fuego  Antártida e Islas del Atlántico Sur",campo='confirmado')
+    >> MapaCOVID("Tierra del Fuego  Antártida e Islas del Atlántico Sur")
 
 ![](Imagenes/EjemplosMapas3.png)
 
