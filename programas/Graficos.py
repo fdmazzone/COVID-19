@@ -39,3 +39,13 @@ fig3, axs3 = plt.subplots(figsize=(8,8))
 DataM_g=DataM.groupby('fecha_fallecimiento').mean()
 DataM_g.edad.plot(ax=axs3)
 DataM_g.edad.rolling(20, center=True).mean().plot(ax=axs3)
+
+########## Ejemplo 5. Grafico area confirmados, 
+### confirmados diarios y muertes globales
+DataC, DataM, DataR=readData('Tierra')
+DataCd=DataC.diff().rename('Confirmados diarios')
+fig,ax=plt.subplots(figsize=(8,8))
+plt.yscale('log')
+DataC.plot.area(ax=ax,legend=True)
+DataCd.plot.area(ax=ax,legend=True)
+DataM.plot.area(ax=ax,legend=True)

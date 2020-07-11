@@ -367,21 +367,17 @@ def readData(Pais):
         DataR=DataR[(DataR[['Country/Region']]==Pais)['Country/Region']]
         
     col=DataC.columns[4:]
-    DataC=DataC.loc[:,col].sum()
+    DataC=DataC.loc[:,col].sum().rename('Confirmados')
     DataC.index=pd.to_datetime(DataC.index)
     
     
-    DataM=pd.read_csv('Data/Epidemic/DataMuertos.csv')
-    DataM=DataM[(DataM[['Country/Region']]==Pais)['Country/Region']]
     col=DataM.columns[4:]
-    DataM=DataM.loc[:,col].sum()
+    DataM=DataM.loc[:,col].sum().rename('Muertes')
     DataM.index=pd.to_datetime(DataM.index)
    
     
-    DataR=pd.read_csv('Data/Epidemic/DataRecuperados.csv')
-    DataR=DataR[(DataR[['Country/Region']]==Pais)['Country/Region']]
     col=DataR.columns[4:]
-    DataR=DataR.loc[:,col].sum()
+    DataR=DataR.loc[:,col].sum().rename('Recuperados')
     DataR.index=pd.to_datetime(DataR.index)
     
     return DataC, DataM, DataR
