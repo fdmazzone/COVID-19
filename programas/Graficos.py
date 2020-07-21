@@ -10,6 +10,7 @@ import pandas as pd
 
 ########### Ejemplo 1, Grafico area de casos diarios y muertes###############
 Data=pd.read_csv('Data/Epidemic/Covid19Casos.csv')
+Data=Data[Data.residencia_provincia_nombre=='Córdoba']
 I1=Data.clasificacion_resumen=='Confirmado'
 I2=Data.fallecido=='SI'
 DataM=Data[I1 & I2]
@@ -22,8 +23,8 @@ H1.index=pd.to_datetime(H1.index)
 J1.index=pd.to_datetime(J1.index)
 fig, axs = plt.subplots(figsize=(8,8))
 plt.yscale('log')
-J1.plot.area(ax=axs)
-H1.plot.area(ax=axs)
+J1.plot(ax=axs,Marker='o')
+H1.plot(ax=axs,Marker='o')
 
 
 ############# Ejemplo 2 Histogramas edades
@@ -42,8 +43,8 @@ DataM_g.edad.rolling(20, center=True).mean().plot(ax=axs3)
 
 ########## Ejemplo 5. Grafico area confirmados, 
 ### confirmados diarios y muertes globales
-DataC, DataM, DataR=readData('Tierra')
-DataCd=DataC.diff().rename('Confirmados diarios')
+DataC, DataM, DataR=readData('Denmark')
+DataCd=DataC.diff().apply(abs).rename('Confirmados diarios')
 fig,ax=plt.subplots(figsize=(8,8))
 plt.yscale('log')
 DataC.plot.area(ax=ax,legend=True)

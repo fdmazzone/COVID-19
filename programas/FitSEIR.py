@@ -159,11 +159,19 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,Metodo="dual_annealing"):
     fig = plt.figure(figsize=(14,10))
     
     ###  Grafica de infectados acumulados###################################
-    ax = plt.axes([0.1, 0.1, 0.5, 0.8])
+    ax = plt.axes()#[0.1, 0.1, 0.5, 0.8])
     ax.plot(t_tics,(I+E+R)*Poblacion,tg,Ia*Poblacion,'o')
     ax.set(yscale='log')
     ax.set(ylim=(1,Poblacion))
-    today = date.today()
+    
+
+    bottom, top = plt.ylim()  
+    t_corte_g=[]
+    for t in t_corte_opt:
+        t_corte_g.append(tg[0]+np.timedelta64(int(t),'D'))
+        ax.plot([t_corte_g[-1],t_corte_g[-1]],[0,top],color='black',linestyle='--')
+
+
 
     if Provincia==None: 
         ax.set_title(unicode(Pais,"utf-8"),fontsize=26)
@@ -196,25 +204,31 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,Metodo="dual_annealing"):
     f=lambda S_inf: np.log(S0/S_inf)-R0_opt[-1]*(1-S_inf)
     I_acum_inf=(1-scipy.optimize.fsolve(f,.000001))*Poblacion
     
+    today = date.today()
     
+    print "Fecha: "+str(today)
     
     formato=""
     for j in t_corte_opt:
+        formato+="%s , "
+    
+    print "Tiempos de Corte ="+formato%tuple(str(i)[:10] for i in t_corte_g)
+    
+    
+    formato=""
+    for j in R0_opt:
         formato+="%10.2f , "
-    fig.text(0.7,0.5,r"$t_{corte}=$"+formato%tuple(t_corte_opt),fontsize=14)
     
+ 
+    print "R0 = "+formato%tuple(R0_opt)
+    print "t_inf = %10.2f"%t_inf+"d"
+    print "t_exp = %10.2f"%t_exp+"d"
+    print "I_max = %10.2e"%I_max+"h"
+    print "Total Inf.= %10.2e"%I_acum_inf+"h"
+    H=np.sqrt(error_opt)*Poblacion
+    print "error_out = %10.2e"%H
+#  
 
-    
-    formato=formato+"%10.2f"
-    fig.text(0.7,.55,"Fecha: "+str(today),fontsize=14)
-    fig.text(0.7,0.45,r"$\mathcal{R}_0=$"+formato%tuple(R0_opt),fontsize=14)
-    fig.text(0.7,0.4,r"$t_{inf}=$"+"%10.2f"%t_inf+"d",fontsize=14)
-    fig.text(0.7,0.35,r"$t_{exp}=$"+"%10.2f"%t_exp+"d",fontsize=14)
-    fig.text(0.7,0.30,r"$I_{max}=$"+"%10.2e"%I_max+"h",fontsize=14)
-    fig.text(0.7,0.25,"$Total Inf.=$"+"%10.2e"%I_acum_inf+"h",fontsize=14)
-    error_out=np.sqrt(error_opt)*Poblacion
-  
-    fig.text(0.7,0.2,r"$Error ajuste=$"+"%10.2e"%error_out+"h",fontsize=14)
 
 
 ############ Funciones Auxiliares ###########################################
@@ -543,7 +557,7 @@ def downloadWorld():
             Data/Epidemic/DataRecuperados.csv 
     """
     
-    
+
     urlb='https://data.humdata.org/hxlproxy/api/data-preview.csv?url=https%3A%2F%2Fraw.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data%2Fcsse_covid_19_time_series%2F'
     url1 = 'time_series_covid19_confirmed_global.csv&filename=time_series_covid19_confirmed_global.csv'
     url2 = 'time_series_covid19_deaths_global.csv&filename=time_series_covid19_deaths_global.csv'
@@ -579,5 +593,3 @@ alpha=1.0/t_inf
 k=1.0/t_exp
 k_ast=k/alpha
 epsilon=1.0
-
-  

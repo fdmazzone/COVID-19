@@ -10,6 +10,8 @@ Se proveen dos modulos, uno de modelización y uno de visualización.
 
 <h2> Módulo de visualización </h2>
 
+![AMBA-confirmados](Imagenes/EjemplosMapas4.png)
+
 <h3>Función Mapa COVID</h3>
 
     >>MapaCOVID(Provincia,campo=None,tipo="burbuja", fecha=None)
@@ -20,7 +22,7 @@ mapa colorpléctico.
 
 <h4>Parametros:</h4>
 
-* **Provincia:** str. Nombre de una provincia Argentina
+* **Provincia:** str. Nombre de una provincia Argentina o el valor "Todas" para un mapa completo de la Argentina.
 
 * **campo:** str. Si campo=None se consideran todas las entradas de la base correspondiendo a todos los test realizados. Si campo="confirmado", se cuentan los casos confirmados. Valor por defecto None
 
