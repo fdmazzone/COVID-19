@@ -8,7 +8,7 @@ Created on Mon Jun 15 14:04:23 2020
 
 
 
-def MapaCOVID(Provincia="Todas",campo=None,tipo="burbuja", fecha=None):
+def MapaCOVID(Provincia="Todas",campo=None,tipo="burbuja", fecha=None,capa=None):
     """
         Hace un mapa de la provincia dividida por departamentos en indica 
         cantidad de casos confirmados con diagramas de burbuja o con un 
@@ -120,7 +120,17 @@ def MapaCOVID(Provincia="Todas",campo=None,tipo="burbuja", fecha=None):
         for x, y, label in zip(MapaProv_points.geometry.x,
                                MapaProv_points.geometry.y, MapaProv_points.in1):
             ax.annotate(label, xy=(x, y),color='blue', xytext=(2, 2), fontsize=8,textcoords="offset points")
-    
+        if capa=='localidades':
+            MapaProv2=geopandas.read_file('Data/GeoData/provincia.json')
+            Localidades=geopandas.read_file("Data/GeoData/puntos_de_asentamientos_y_edificios_localidad.json")
+            poly=MapaProv2[MapaProv2.in1==CodProv]
+            I=[poly.geometry.contains(Localidades.geometry[h])[poly.index[0]] for h in Localidades.index]
+            Localidades=Localidades[I]
+            Localidades.plot(ax=ax)
+            for x, y, label in zip(Localidades.geometry.x,
+                               Localidades.geometry.y, Localidades.fna):
+                ax.annotate(label, xy=(x, y),color='blue', xytext=(2, 2), fontsize=8,textcoords="offset points")
+            
     ax.set_title(unicode(Provincia,"utf-8"),fontsize=26)
     
         
@@ -175,12 +185,12 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
 import numpy as np
-
+from shapely.geometry import Point, Polygon
 
 ################# Vriables Globales ##########################################
 
 #############  Nueva COLOR MAP ###############33
-viridis = cm.get_cmap('Greens', 4096)
+viridis = cm.get_cmap('Oranges', 4096)
 newcolors = viridis(np.linspace(0, 1, 4096))
 white = np.array([.0, .0, .0, .0])
 newcolors[:1, :] = white

@@ -8,6 +8,7 @@ Se proveen dos modulos, uno de modelización y uno de visualización.
 
 * MapaCOVID.py: contiene funciones para mostrar en mapas la situación de la pandemia en la República Argentina.
 
+* Graficos.py: contine funciones para visualizar datos desde las bases de datos que descarga el programa.
 <h2> Módulo de visualización </h2>
 
 ![AMBA-confirmados](Imagenes/EjemplosMapas4.png)
@@ -34,7 +35,9 @@ consideran los casos de entre las fechas estipuladas.
 Debe ser "AAAA-MM-DD"<= "aaaa-mm-dd". Valor por defecto
 None.
 
-<h4>Retorna:</h4> Mapa con distribución de casos o test. Diagrama de barras con cantidad de casos pr departamento. código y denominación de los departamentos.
+* **capa:** str. Cuando capa='localidades' al mapa se le agrega las localidades dentro de la provincia. La opción funciona si Provicia no es "Todas" ni "Amba".
+
+<h4>Retorna:</h4> Mapa con distribución de casos o test. Diagrama de barras con cantidad de casos por departamento. código y denominación de los departamentos.
 
 En todos los ejemplos debajo se asume que estamos en una terminal o consola de comandos posicionados en el directorio donde se descargaron los archivos. Se recomienda tener actualizada la base de datos de contagios como se señala en la sección [Datos Nacionales](#item1).
 
@@ -51,6 +54,16 @@ Sin la asignación campo='confirmado' el mapa corresponde a todos los testeos re
 
 ![](Imagenes/EjemplosMapas3.png)
 
+
+    >> MapaCOVID(Provincia="Córdoba",campo='confirmado',fecha=('2020-07-24','2020-07-31'),tipo='colorpléctico',capa='localidades')
+
+![](Imagenes/EjemplosMapasLocalidades.png)
+
+El archivo Graficos.py provee las funciones EpiArg() y EpiGlobal() que produce gráfico con estadísticas de la pandemia.
+
+    >> EpiArg(provincia='Todas', dpto=None):
+
+![](Imagenes/Estadísticas.png)
 
 <a name="item1"></a>
 
