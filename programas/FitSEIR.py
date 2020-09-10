@@ -7,7 +7,7 @@ Created on Thu Jul  9 19:27:44 2020
 """
 
 
-def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,Metodo="dual_annealing"):
+def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fijo=(),t_lim=(),t_lim_fijo=(),Metodo='shgo'):
     """
     ##########################################################################
     Ajuste de los datos de la pandemia del COVID-19 a un modelo SEIR usando un
@@ -17,28 +17,53 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,Metodo="dual_annealing"):
              
             Pais: string 
                 País que se quiere analizar. Previamente debe llenarse el archivo 
-                Data/Countries/countries.csv con un rango donde se quiere se busqué
-                los parámetros óptimos. El archivo provisto contiene datos de 
-                algunos países
+                Data/Countries/countries.csv con  la población total del país
             
             Provincia: string
-                      Solo posible si Pais='Argentina'.  Provincia Argetina.
-                      base de rangos Data/Countries/DataFitProv.csv.
-                      
+                      Solo posible si Pais='Argentina'.  
+            
             dpto: string
                     departamento que corresponda a la provincia elegida. 
                     Base de fiteos Data/dptos/DataFitDptos.csv
+
+            fecha: tuple de strings
+                    fecha 2-tuple con fechas en formato 'AAAA-MM-DD', 
+                    rango de tiempo del análisis
+                    
+            R0_fijo: tuple de float64
+                    valores fijos (no ajustables) de R0, 
+                    deben ser los primeros
+
+            R0_lim: tuple de 2-tuples de float 64
+                    rangos donde se buscarán los valores de R0 que son 
+                    ajustables.
+
+            t_fijo_fijo: tuple de string 'AAAA-MM-DD'
+                       fechas de cortes fijos (no ajustables) de cambios de R0
+
+            t_fijo: tuple de 2-tuples de strings
+                    Rango donde se ajustará los cambios de R0
                 
             Metodo: string
                     Metodo de optimización utilizado. La función ajusta un
                     modelo SEIR a los datos descargados. Valor por defecto 
-                    "dual_annealing". Valores posibles "dual_annealing""shgo", 
+                    "shgo". Valores posibles "dual_annealing""shgo", 
                     "brute" 
+            
+               
             
      retorna
          gráfico donde se representan cantidad casos confirmados y sus 
             ajustes por el modelo SEIR
                     
+    Ejemplo
+    >> t_lim_fijo=('2020-06-25',)
+    >> t_lim=(('2020-08-01','2020-08-15'),)
+    >> R0_fijo=(.85,) 
+    >> R0_lim=((1.8,1.95),(1,1.2))
+    
+    >> FitSEIR(Provincia='Córdoba',fecha=('2020-04-01','2020-08-26'),R0_lim=R0_lim,
+            R0_fijo=R0_fijo,t_lim=t_lim,t_lim_fijo=t_lim_fijo)
     
   
     
@@ -75,45 +100,78 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,Metodo="dual_annealing"):
 
     ############  Ler datos de datos fiteos####################################
     if Provincia==None:
-        Poblacion,st,R0_lim,t_corte_lim=load_fit_data_world(Pais)
+        Poblacion=load_fit_data_world(Pais)
        ########### Leer datos país ############################################
         DataC,DataR,DataM=readData(Pais)
-        Ia=DataC[DataC>0].to_numpy()
-        Id=DataC[DataC>0].diff().to_numpy()
-        DataC[DataC>0].diff().to_numpy()
-        M_data=DataM[DataC>0].to_numpy()
-        R_data=DataR[DataC>0].to_numpy()
-        tg=pd.to_datetime(DataC[DataC>0].index).to_numpy()
-        Ia=Ia[st:]/Poblacion #NOrmalizamos la poblacion total}
-        Id=Id[st:]
-        M_data=M_data[st:]/Poblacion
-        R_data=R_data[st:]/Poblacion
-        tg=tg[st:]
+        I0=DataC>0
+        I=DataC.index>=fecha[0]
+        II=DataC.index<=fecha[1]
+        III=I0 & I & II
+        tg1=pd.to_datetime(DataC[III].index)
+        tg=pd.to_datetime(tg1).to_numpy()
+        Ia=DataC[III].to_numpy()
+        Id=DataC[III].diff().to_numpy()
+        M_data=DataM[III].to_numpy()
+        R_data=DataR[III].to_numpy()
+        
+
+        
+        
+        Ia=Ia/Poblacion #NOrmalizamos la poblacion total}
+        
+        
+       
+        M_data=M_data/Poblacion
+        R_data=R_data/Poblacion
+        
         
         #############   tiempo en días desde inicio
         t=np.arange(len(tg))
 
     else:
         if not dpto==None:
-            Poblacion,st,R0_lim,t_corte_lim=load_fit_data_dpto(Provincia,dpto)
+            Poblacion=load_fit_data_dpto(Provincia,dpto)
             Data=readDataArg_dpto(Provincia, dpto)
         else:
-            Poblacion,st,R0_lim,t_corte_lim=load_fit_data(Provincia)
+            Poblacion=load_fit_data(Provincia)
             Data=readDataArg(Provincia)
+        
+        tg1=pd.to_datetime(Data.index)
+        
+        I=tg1>=fecha[0]
+        II=tg1<=fecha[1]
+        III=I & II
+        Data=Data[III]
+        
+        
         
         Ia=Data.CasosAcum.to_numpy()
         Id=Data.CasosDia.to_numpy()
-        Ia=Ia[st:]/Poblacion #NOrmalizamos la poblacion total}
-        Id=Id[st:]
+        Ia=Ia/Poblacion #NOrmalizamos la poblacion total}
         tg=pd.to_datetime(Data.index).to_numpy()
-        tg=tg[st:]
+        
         
         t=(tg-tg[0])/24.0/3600.0/1.0e9/np.timedelta64(1,'ns')
                    
     #### Rangos parametros fiteos
-    rangos=t_corte_lim+R0_lim
+    
+    t_ini=pd.to_datetime(fecha[0])
+ 
+    
+    t_corte_lim=()
+    for t_lim_p in t_lim:
+        t_lim1=(pd.to_datetime(t_lim_p[0])-t_ini).days
+        t_lim2=(pd.to_datetime(t_lim_p[1])-t_ini).days
+        t_corte_lim=t_corte_lim+((t_lim1,t_lim2),)
+        
+    t_lim_fijo=np.array([(pd.to_datetime(j)-t_ini).days for j in t_lim_fijo])
+    
+    R0_fijo=np.array(R0_fijo)
+    
+    
+    rangos=t_corte_lim+R0_lim+((.0,1),)#elultimo ajusta la condicion inicial
+    #es la proporcion de recuperados a los confirmados acumulados.
     ########### Condicion Inicial 
-    Y0=[1.0,0.0,Ia[0],0.0]
     
    
     
@@ -121,13 +179,13 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,Metodo="dual_annealing"):
     ################Elegir el método  
       
     if Metodo=='dual_annealing':
-        opt=scipy.optimize.dual_annealing(Error,rangos,args=(Y0,Ia,t))
+        opt=scipy.optimize.dual_annealing(Error,rangos,args=(Ia,t,R0_fijo,t_lim_fijo))
         x_opt,error_opt=opt["x"],opt["fun"]
     elif Metodo=='shgo':
-        opt=scipy.optimize.shgo(Error,rangos,args=(Y0,Ia,t))
+        opt=scipy.optimize.shgo(Error,rangos,args=(Ia,t,R0_fijo,t_lim_fijo))
         x_opt,error_opt=opt["x"],opt["fun"]
     elif Metodo=='brute':
-        opt=scipy.optimize.brute(Error,rangos,args=(Y0,Ia,t),finish=None,full_output=True)
+        opt=scipy.optimize.brute(Error,rangos,args=(Ia,t,R0_fijo,t_lim_fijo),finish=None,full_output=True)
         x_opt,error_opt=opt[0:2]
     else:
         print("No existe el método"+Metodo )
@@ -139,9 +197,12 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,Metodo="dual_annealing"):
     
     ########### Exponiendo datos
     ### Extracción los resultados optimizacion
-    n=(len(x_opt)+1)/2
-    t_corte_opt=x_opt[:n-1]
-    R0_opt=x_opt[n-1:]
+    
+    Y0=[1-Ia[0],0.0,Ia[0]*x_opt[-1],Ia[0]*(1-x_opt[-1])]
+    
+    n=(len(x_opt[:-1])+1)/2
+    t_corte_opt=np.concatenate([t_lim_fijo,x_opt[:n-1]])
+    R0_opt=np.concatenate([R0_fijo,x_opt[n-1:-1]])
     
     ###  Calculo curva teórica resultante
     tt=np.arange(365)
@@ -158,19 +219,17 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,Metodo="dual_annealing"):
 
     fig = plt.figure(figsize=(14,10))
     
+    
     ###  Grafica de infectados acumulados###################################
     ax = plt.axes()#[0.1, 0.1, 0.5, 0.8])
-    ax.plot(t_tics,(I+E+R)*Poblacion,tg,Ia*Poblacion,'o')
+    
+    ax.plot(t_tics.to_numpy(),(I+E+R)*Poblacion,tg,Ia*Poblacion,'o')
+   
     ax.set(yscale='log')
     ax.set(ylim=(1,Poblacion))
     
 
     bottom, top = plt.ylim()  
-    t_corte_g=[]
-    for t in t_corte_opt:
-        t_corte_g.append(tg[0]+np.timedelta64(int(t),'D'))
-        ax.plot([t_corte_g[-1],t_corte_g[-1]],[0,top],color='black',linestyle='--')
-
 
 
     if Provincia==None: 
@@ -193,6 +252,12 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,Metodo="dual_annealing"):
               shadow=True, loc=(.05, .82), handlelength=1.5, fontsize=12)
     
     ###############Datos a la derecha de la gráfica
+    
+    t_corte_g=[]
+    for t in t_corte_opt:
+        t_corte_g.append(tg[0]+np.timedelta64(int(t),'D'))
+        ax.plot([t_corte_g[-1],t_corte_g[-1]],[0,top],color='black',linestyle='--')
+
 
     I_max=max(I)*Poblacion
     if len(t_corte_opt)>0:
@@ -298,9 +363,13 @@ def Error(x,*params):
          modelo SEIR con los parámetros dados por x.
     
     """
-    Y0,Ia,t=params
-    n=(len(x)+1)/2
-    t_corte,R0=x[:n-1],x[n-1:]
+    Ia,t,R0_fijo,t_lim_fijo=params
+    Y0=[1-Ia[0],0.0,Ia[0]*x[-1],Ia[0]*(1-x[-1])]
+    
+    n=(len(x[:-1])+1)/2
+    t_corte_aux,R0_aux=x[:n-1],x[n-1:-1]
+    t_corte=np.concatenate([t_lim_fijo,t_corte_aux])
+    R0=np.concatenate([R0_fijo,R0_aux])
    #Cambio escala tiempo
     s=t*alpha
     s_corte=alpha*t_corte
@@ -402,64 +471,39 @@ def readData(Pais):
 ####################   Paises ###############################################
 def load_fit_data_world(Pais):
     """
-    Carga los parámetros para usar en el ajuste del archivo 
+    Carga la poblacion  desde el archivo 
     Data/Countries/countries.csv
     
     Parametros
               Pais: string, nombre del pais en ingles.
     Retorna:
             Poblacion: #habitantes, float 64
-            st: int, los datos hasta st son descartados
-            R0_lim: tuple de 2-tuples de float64. Rangos de R0 para ajustar
-            t_corte_lim: tuple de 2-tuples de float64. Rangos de tiempos de 
-                          corte para ajustar
     """
     DataFitWorld=pd.read_csv('Data/Countries/countries.csv')
     I=DataFitWorld.Pais==Pais
     DataFit=DataFitWorld[I]
-    i0=DataFit.Poblacion.index[0]
-    Poblacion=DataFit.Poblacion.loc[i0]
-    st=DataFit.st.loc[i0]
-    R0_min=DataFit.R0_min.loc[i0+1:]
-    R0_max=DataFit.R0_max.loc[i0+1:]
-    Indice=DataFit.index[1:]
-    R0_lim=[(R0_min[i],R0_max[i]) for i in Indice]
-    tc_min=DataFit.tc_min.loc[i0+2:]
-    tc_max=DataFit.tc_max.loc[i0+2:]
-    t_corte_lim=[(tc_min[i],tc_max[i]) for i in Indice[1:]]    
-    return Poblacion,int(st),R0_lim,t_corte_lim    
-
+    Poblacion=DataFit.Poblacion[DataFit.index[0]]
+    return Poblacion
+    
 
 ###################  Provincias ##########################################
 def load_fit_data(Provincia):
     """
-    Carga los parámetros para usar en el ajuste del archivo 
+    Carga solo la poblacvion del archivo 
     Data/Provincias/DataFitProv.csv
     
     Parametros
               Provincia: string, nombre de la provincia Argentina.
     Retorna:
             Poblacion: #habitantes, float 64
-            st: int, los datos hasta st son descartados
-            R0_lim: tuple de 2-tuples de float64. Rangos de R0 para ajustar
-            t_corte_lim: tuple de 2-tuples de float64. Rangos de tiempos de 
-                          corte para ajustar
+            
     """
     DataFitArg=pd.read_csv('Data/Provincias/DataFitProv.csv')
     I=DataFitArg.Provincia==Provincia
     DataFitProv=DataFitArg[I]
-    i0=DataFitProv.Poblacion.index[0]
-    Poblacion=DataFitProv.Poblacion.loc[i0]
-    st=DataFitProv.st.loc[i0]
-    R0_min=DataFitProv.R0_min.loc[i0+1:]
-    R0_max=DataFitProv.R0_max.loc[i0+1:]
-    Indice=DataFitProv.index[1:]
-    R0_lim=[(R0_min[i],R0_max[i]) for i in Indice]
-    tc_min=DataFitProv.tc_min.loc[i0+2:]
-    tc_max=DataFitProv.tc_max.loc[i0+2:]
-    t_corte_lim=[(tc_min[i],tc_max[i]) for i in Indice[1:]]    
-    return Poblacion,int(st),R0_lim,t_corte_lim
-
+    Poblacion=DataFitProv.Poblacion[DataFitProv.index[0]]
+    return float(Poblacion)
+    
 ########################  Departamentos ###################################
 
 def load_fit_data_dpto(Provincia,dpto_nam):
@@ -482,20 +526,8 @@ def load_fit_data_dpto(Provincia,dpto_nam):
     I1=Data_dpto.nam==dpto_nam
     Data_dpto=Data_dpto[I & I1].personas
     Poblacion=float(Data_dpto[Data_dpto.index[0]])
-    DataFitArg=pd.read_csv('Data/dptos/DataFitDptos.csv')
-    I=DataFitArg.Provincia==Provincia
-    I1=DataFitArg.nam==dpto_nam
-    DataFitProv=DataFitArg[I & I1]
-    i0=DataFitProv.index[0]
-    st=DataFitProv.st.loc[i0]
-    R0_min=DataFitProv.R0_min.loc[i0:]
-    R0_max=DataFitProv.R0_max.loc[i0:]
-    R0_lim=[(R0_min[i],R0_max[i]) for i in DataFitProv.index]
-    tc_min=DataFitProv.tc_min.loc[i0+1:]
-    tc_max=DataFitProv.tc_max.loc[i0+1:]
-    t_corte_lim=[(tc_min[i],tc_max[i]) for i in DataFitProv.index[1:]]    
-    return Poblacion,int(st),R0_lim,t_corte_lim
-
+    return Poblacion
+    
 
 
 
@@ -516,7 +548,7 @@ def downloadARG():
     Retorna:
          Data/Epidemic/Covid19Casos.csv
     """
-    
+    os.rename(r'Data/Epidemic/Covid19Casos.csv',r'Data/Epidemic/Covid19CasosRespaldo.csv')
     url=u'https://sisa.msal.gov.ar/datos/descargas/covid-19/files/Covid19Casos.csv'  
     with open('Data/Epidemic/Covid19Casos.csv', 'wb') as f:
         response = requests.get(url, stream=True)
@@ -534,12 +566,6 @@ def downloadARG():
                 sys.stdout.write('\r[{}{}]'.format('█' * done, '.' * (50-done)))
                 sys.stdout.flush()
     sys.stdout.write('\n')
-    f= open('Data/Epidemic/Covid19Casos.csv', 'rb')
-    content= unicode(f.read(), 'utf-16')
-    f.close()
-    f= open('Data/Epidemic/Covid19Casos.csv', 'wb')
-    f.write(content.encode('utf-8'))
-    f.close()
 
 def downloadWorld():
     """
@@ -584,6 +610,7 @@ import pandas as pd
 from datetime import date
 import requests
 import sys
+import os
 
 
 ###################  Variables Globales ######################################
@@ -593,3 +620,5 @@ alpha=1.0/t_inf
 k=1.0/t_exp
 k_ast=k/alpha
 epsilon=1.0
+ 
+

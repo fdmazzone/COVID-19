@@ -120,17 +120,21 @@ def MapaCOVID(Provincia="Todas",campo=None,tipo="burbuja", fecha=None,capa=None)
         for x, y, label in zip(MapaProv_points.geometry.x,
                                MapaProv_points.geometry.y, MapaProv_points.in1):
             ax.annotate(label, xy=(x, y),color='blue', xytext=(2, 2), fontsize=8,textcoords="offset points")
-        if capa=='localidades':
-            MapaProv2=geopandas.read_file('Data/GeoData/provincia.json')
-            Localidades=geopandas.read_file("Data/GeoData/puntos_de_asentamientos_y_edificios_localidad.json")
-            poly=MapaProv2[MapaProv2.in1==CodProv]
-            I=[poly.geometry.contains(Localidades.geometry[h])[poly.index[0]] for h in Localidades.index]
-            Localidades=Localidades[I]
-            Localidades.plot(ax=ax)
-            for x, y, label in zip(Localidades.geometry.x,
-                               Localidades.geometry.y, Localidades.fna):
-                ax.annotate(label, xy=(x, y),color='blue', xytext=(2, 2), fontsize=8,textcoords="offset points")
-            
+ 
+    if capa=='localidades' and not Provincia=='AMBA':
+        Localidades=pd.read_csv("Data/GeoData/municipios.csv")
+        if not Provincia=='Todas':
+            Localidades=Localidades[Localidades.provincia_nombre==Provincia]
+        for  h in Localidades.index:
+            x=Localidades.centroide_lat[h]
+            y=Localidades.centroide_lon[h]
+            label=Localidades.nombre[h]
+            ax.annotate(unicode(label,"utf-8"), xy=( y,x),color='black', xytext=(2, 2), fontsize=8,textcoords="offset points")
+            ax.scatter(y,x,color='black')
+
+
+    
+    
     ax.set_title(unicode(Provincia,"utf-8"),fontsize=26)
     
         
@@ -203,6 +207,6 @@ codigo=pd.read_csv('Data/GeoData/CodProv.csv')
 codigo.index=codigo.Provincia
 
 
-
+#MapaCOVID(Provincia="La Pampa",campo='confirmado',fecha=('2020-08-01','2020-08-01'),capa='localidades')
 
 

@@ -100,19 +100,71 @@ Descarga los datos de infectados, recuperados y muertos de distintos  paises del
 <h3>Datos Nacionales</h3>
 
     >> from FitSEIR import FitSEIR
-    >> FitSEIR(Provincia="pcia_nam",dpto="dpto_nam",Metodo="met_nam")
+    >> FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fijo=(),t_lim=(),t_lim_fijo=(),Metodo='shgo')
 
-Ajusta un modelo SEIR a los datos de "pcia_nam". "pcia_nam" es  el nombre de una provincia Argentina.  Opcionalmente, el argumento dpto="dpto_nam" ajusta datos del departamento "dpto_nam" de "pcia_nam". También opcionalmente, Metodo="met_nam" cambia el método de optimización que se quiere utilizar,las opciones posibles se indican debajo
+Ajuste de los datos de la pandemia del COVID-19 a un modelo SEIR usando un algorítmo para hallar mínimos globales.
 
-**Ejemplo**
+**Parametros:**
 
-    >> FitSEIR(Provincia="CABA")
+    Pais: string
+        País que se quiere analizar. Previamente debe llenarse el archivo
+        Data/Countries/countries.csv con  la población total del país
 
-![](Imagenes/18-junio-2020-CABA.png)
+    Provincia: string
+              Solo posible si Pais='Argentina'.  
+
+    dpto: string
+            departamento que corresponda a la provincia elegida.
+            Base de fiteos Data/dptos/DataFitDptos.csv
+
+    fecha: tuple de strings
+            fecha 2-tuple con fechas en formato 'AAAA-MM-DD',
+            rango de tiempo del análisis
+
+    R0_fijo: tuple de float64
+            valores fijos (no ajustables) de R0,
+            deben ser los primeros
+
+    R0_lim: tuple de 2-tuples de float 64
+            rangos donde se buscarán los valores de R0 que son
+            ajustables.
+
+    t_fijo_fijo: tuple de string 'AAAA-MM-DD'
+               fechas de cortes fijos (no ajustables) de cambios de R0
+
+    t_fijo: tuple de 2-tuples de strings
+            Rango donde se ajustará los cambios de R0
+
+    Metodo: string
+            Metodo de optimización utilizado. La función ajusta un
+            modelo SEIR a los datos descargados. Valor por defecto
+            "shgo". Valores posibles "dual_annealing""shgo",
+            "brute"
+
+
+
+**Retorna**
+
+        gráfico donde se representan cantidad casos confirmados y sus
+        ajustes por el modelo SEIR, resultados del ajuste en la pantalla.
+
+**Ejemplo 1**
+
+        >> t_lim_fijo=('2020-03-19','2020-04-13','2020-06-15')
+        >> t_lim=()
+        >> R0_fijo=(3.96,1.01,1.49)
+        >> R0_lim=((1.0,1.06),)
+
+        >> FitSEIR(Provincia='CABA',fecha=('2020-03-01','2020-09-09'),R0_lim=R0_lim,
+                R0_fijo=R0_fijo,t_lim=t_lim,t_lim_fijo=t_lim_fijo)
+
+![](Imagenes/9-septiembre-2020-CABA.png)
+
+**Ejemplo 2**
 
     >> FitSEIR(Provincia="Buenos Aires",dpto='La Matanza')
 
-![Matanza](Imagenes/Matanza.png)
+![Matanza](Imagenes/9-septiembre-2020-La-Matanza.png)
 
 <h3>Datos Internacionales</h3>
 
@@ -122,9 +174,15 @@ Ajusta un modelo SEIR a los datos de "pais_nam". "pais_nam" es  el nombre en ing
 
 **Ejemplo**
 
-    >> FitSEIR(Pais='Italy')
+    >> t_lim_fijo=('2020-03-21','2020-04-16','2020-07-06')
+    >> t_lim=()
+    >> R0_fijo=(2.39,.95,.69)
+    >> R0_lim=((1.2,1.5),)
 
-![](Imagenes/fitSEIR_Italia_13-06-2020.png)
+    >> FitSEIR(Pais='Italy',fecha=('2020-03-01','2020-09-05'),
+          R0_lim=R0_lim,R0_fijo=R0_fijo,t_lim=t_lim,t_lim_fijo=t_lim_fijo)
+
+![](Imagenes/9-septiembre-2020-italia.png)
 
 
 
