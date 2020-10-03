@@ -8,7 +8,8 @@ Created on Mon Jun 15 14:04:23 2020
 
 
 
-def MapaCOVID(Provincia="Todas",campo=None,tipo="burbuja", fecha=None,capa=None):
+def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
+              ,capa=None,densidad=None):
     """
         Hace un mapa de la provincia dividida por departamentos en indica 
         cantidad de casos confirmados con diagramas de burbuja o con un 
@@ -32,13 +33,12 @@ def MapaCOVID(Provincia="Todas",campo=None,tipo="burbuja", fecha=None,capa=None)
         retorna: Mapa con distribución de casos o test
     """
     
-    
+    DataProv=readDataArg(Provincia)
     
     if Provincia=="AMBA":
         MapaProv=geopandas.read_file("Data/GeoData/AMBA.json")
         MapaProv.insert(9, "Infectados", 0.0)
         MapaProv.index=MapaProv.in1
-        DataProv=readDataArg('AMBA',campo=campo)   
     elif Provincia=="Todas":
         MapaCABA=geopandas.read_file("Data/GeoData/AMBA.json").loc[0]
         MapaProv=geopandas.read_file("Data/GeoData/departamento.json")
@@ -47,15 +47,14 @@ def MapaCOVID(Provincia="Todas",campo=None,tipo="burbuja", fecha=None,capa=None)
         MapaProv=MapaProv.append(MapaCABA)
         MapaProv.insert(9, "Infectados", 0.0)#isertar columna nueva
         MapaProv.index=MapaProv.in1
-        DataProv=readDataArg(Provincia="Todas",campo=campo)
     else:
         Arg=geopandas.read_file("Data/GeoData/departamento.json")
         CodProv=str(codigo.Cod[Provincia]).zfill(2)
         MapaProv=Arg[[h[:2]==CodProv for h in Arg['in1']]]
         MapaProv.insert(9, "Infectados", 0.0)#isertar columna nueva
         MapaProv.index=MapaProv.in1
-        DataProv=readDataArg(Provincia,campo=campo)
-        
+
+    
     if len(DataProv)==0:
         return "No se registra"
 
@@ -77,7 +76,10 @@ def MapaCOVID(Provincia="Todas",campo=None,tipo="burbuja", fecha=None,capa=None)
             MapaProv.at[id,"Infectados"]=DataI[h]
     elif Provincia=="Todas":
         InfCABA=DataProv.residencia_provincia_nombre.value_counts()['CABA']
-        MapaProv.at['02000','Infectados']=InfCABA
+        if not densidad==None:
+            MapaProv.at['02000','Infectados']=InfCABA/3075646.0*densidad
+        else:
+            MapaProv.at['02000','Infectados']=InfCABA
         I=[not h=='CABA' for h in DataProv.residencia_provincia_nombre]
         DataProv=DataProv[I]
         
@@ -86,13 +88,24 @@ def MapaCOVID(Provincia="Todas",campo=None,tipo="burbuja", fecha=None,capa=None)
         DataProv.at[:,'id']=I1+I2
         
         DataI=DataProv.id.value_counts()
-        for h in DataI.index:
-            MapaProv.at[h,"Infectados"]=DataI[h]
+    
+        if not densidad==None:
+            Data_dpto=pd.read_csv('Data/Poblacion/poblacion_dpto.csv')
+            for h in DataI.index:
+                ind_dpto=int(h)
+                if ind_dpto in Data_dpto.in1.to_numpy(): #hay departamentos con 
+                    #codigos erroneos en la base del ministerio de salud
+                    J=Data_dpto[Data_dpto.in1==ind_dpto]
+                    hab=float(J.personas.loc[J.index[0]])
+                    MapaProv.at[h,"Infectados"]=DataI[h]/hab*densidad
+        else:
+            for h in DataI.index:
+                MapaProv.at[h,"Infectados"]=DataI[h]
+
         
     else:
         DataI=DataProv.residencia_departamento_id.value_counts()
         for h in DataI.index:
-            #if not(h==0):
             id=CodProv+str(h).zfill(3)
             MapaProv.at[id,"Infectados"]=DataI[h]
     
@@ -147,7 +160,7 @@ def MapaCOVID(Provincia="Todas",campo=None,tipo="burbuja", fecha=None,capa=None)
     Resultado.Infectados.plot.bar(ax=ax1)
     return Resultado.nam
 
-def readDataArg(Provincia, campo=None):
+def readDataArg(Provincia):
     """
     Lee datos de la base descargada del ministerio de salud de la República 
     Argentina.
@@ -160,8 +173,7 @@ def readDataArg(Provincia, campo=None):
     
     
     Data=pd.read_csv("Data/Epidemic/Covid19Casos.csv")
-    if campo=='confirmado':
-        Data=Data[Data.clasificacion_resumen=="Confirmado"]
+    Data=Data[Data.clasificacion_resumen=="Confirmado"]
     if Provincia=='AMBA':
         DataAMBA=geopandas.read_file('Data/GeoData/AMBA.json')
         #Primer datos es CABA lo leere de otra forma
@@ -205,7 +217,6 @@ newcmp = ListedColormap(newcolors**5)
 ######################  CODIGOS DE PROVINCIA ##################################
 codigo=pd.read_csv('Data/GeoData/CodProv.csv')
 codigo.index=codigo.Provincia
-
 
 #MapaCOVID(Provincia="La Pampa",campo='confirmado',fecha=('2020-08-01','2020-08-01'),capa='localidades')
 

@@ -155,7 +155,61 @@ def PlotEdad(provincia='Todas',dpto=None):
         J2.plot(ax=ax,marker=marker[i],legend=True)
         i=i+1
 
+
+def PlotDifFechas(provincia='Todas',dpto=None):
+    Data=readDataArg(provincia=provincia,dpto=dpto)
+    fig, ax = plt.subplots(1,1,figsize=(10,10))
+    J0=Data[['fecha_apertura','fecha_diagnostico']]
+    J0['diferencia']=pd.to_datetime(J0['fecha_apertura'])-pd.to_datetime(J0['fecha_diagnostico']) 
+    J1=J0.sort_values(by='fecha_apertura',axis=0)
+    S1=J1.groupby('fecha_apertura').sum().diferencia
+    S2=J1.groupby('fecha_apertura').count().diferencia
+    Ratio=(S1/S2)/24.0/3600.0/1.0e9/np.timedelta64(1,'ns')
+    Ratio.plot(ax=ax,Marker='o')
+
+
+def Testeos(provincia='Todas', dpto=None):
+    Data=pd.read_csv('Data/Epidemic/Covid19Casos.csv')
+    if not provincia=="Todas":
+        Data=Data[Data.residencia_provincia_nombre==provincia]
+    if not dpto==None:
+        Data=Data[Data.residencia_departamento_nombre==dpto]
     
+    DataC=Data[Data.clasificacion_resumen=='Confirmado']
+    DataM=DataC[DataC.fallecido=='SI']
+    
+    J0=DataC[['id_evento_caso','fecha_apertura']].groupby('fecha_apertura')
+    J1=J0.count().rename(columns={'id_evento_caso':'confirmado_diario'})
+    H0=DataM[['id_evento_caso','fecha_fallecimiento']].groupby('fecha_fallecimiento')
+    H1=H0.count().rename(columns={'id_evento_caso':'muertes_diarias'})
+    H1.index=pd.to_datetime(H1.index)
+    J1.index=pd.to_datetime(J1.index)
+    
+    H2=H1.cumsum().rename(columns={'muertes_diarias':'muertes_acumuladas'})
+    J2=J1.cumsum().rename(columns={'confirmado_diario':'confirmados'})
+    
+    
+    L0=Data[['id_evento_caso','fecha_apertura']].groupby('fecha_apertura')
+    
+    L1=L0.count().rename(columns={'id_evento_caso':'evento_diario'}) 
+    L1.index=pd.to_datetime(L1.index)
+    
+    L2=L1.cumsum().rename(columns={'evento_diario':'evento_acumulado'}) 
+    
+    fig, ax1 = plt.subplots(1,1,figsize=(18,12))
+    ax1.set_yscale('log')
+    J2.plot(ax=ax1,Marker='+',legend=True)
+    J1.plot(ax=ax1,Marker='^',legend=True)
+    #H2.plot(ax=ax1,legend=True)
+    #H1.plot(ax=ax1,legend=True)
+    
+    #fig2, ax2= plt.subplots(1,1,figsize=(18,12))
+    #ax2.set_yscale('log')
+    L2.plot(ax=ax1,Marker='p',legend=True)
+    L1.plot(ax=ax1,Marker='o',legend=True)
+
+
+
 def MapaCOVID(provincia):
     """
         Hace un mapa de la provincia dividida por departamentos y colorea con 
@@ -226,9 +280,10 @@ def MapaCOVID(provincia):
     Resultado.MuertesxInfectado.plot.bar(ax=ax1)
     return Resultado.nam
 
-def readDataArg(provincia='Todas', dpto=None):
+def readDataArg(provincia='Todas', dpto=None,filtro='Confirmado'):
     Data=pd.read_csv(filepath1)
-    Data=Data[Data.clasificacion_resumen=="Confirmado"]
+    if filtro=='Confirmado':
+        Data=Data[Data.clasificacion_resumen=="Confirmado"]
     if not provincia=="Todas":
         if provincia=='AMBA':
             DataAMBA=geopandas.read_file(dir1+'/Data/GeoData/AMBA.json')
@@ -309,6 +364,6 @@ filepath3=dir1+"/Data/GeoData/provincia.json"
 codigo=pd.read_csv(dir1+'/Data/GeoData/CodProv.csv')
 codigo.index=codigo.Provincia
 
-Data=readDataArg()
+#Data=readDataArg()
 
 

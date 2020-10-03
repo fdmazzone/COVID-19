@@ -154,7 +154,7 @@ I2d=I2d/nro_exp
 
 
 
-s=np.arange(0,iteraciones*delta_s,delta_s)
+s=np.arange(0,n*delta_s,delta_s)
 
 
 

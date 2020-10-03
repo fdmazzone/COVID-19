@@ -205,13 +205,17 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     R0_opt=np.concatenate([R0_fijo,x_opt[n-1:-1]])
     
     ###  Calculo curva teórica resultante
-    tt=np.arange(365)
-    t_tics=pd.Series(pd.date_range(str(tg[0]), freq='D', periods=365))
+    t_prediccion=365.0
+    tt=np.arange(t_prediccion)
+    t_tics=pd.Series(pd.date_range(str(tg[0]), freq='D', periods=t_prediccion))
     s=alpha*tt
     s_corte_opt=alpha*t_corte_opt
     sol =  odeint(SEIR,Y0 ,s, args=(s_corte_opt,R0_opt))
     S,E,I,R=sol[:,0],sol[:,1],sol[:,2],sol[:,3]
     
+    ####  borrar era para hacer experimento
+    #sol2 =  odeint(SEIR,Y0 ,s, args=([],[R0_opt[0]]))
+    #S2,E2,I2,R2=sol2[:,0],sol2[:,1],sol2[:,2],sol2[:,3]    
 
     ##########################################################################
     ################## Creacion graficas######################################
@@ -224,7 +228,10 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     ax = plt.axes()#[0.1, 0.1, 0.5, 0.8])
     
     ax.plot(t_tics.to_numpy(),(I+E+R)*Poblacion,tg,Ia*Poblacion,'o')
-   
+    
+    #ax.plot(t_tics.to_numpy(),(I2+E2+R2)*Poblacion)#experimento
+    
+    
     ax.set(yscale='log')
     ax.set(ylim=(1,Poblacion))
     
@@ -235,7 +242,7 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     if Provincia==None: 
         ax.set_title(unicode(Pais,"utf-8"),fontsize=26)
     elif not dpto==None:
-        ax.set_title(unicode(dpto,"utf-8"),fontsize=26)
+        ax.set_title(unicode(Provincia,"utf-8")+', Departamento '+unicode(dpto,"utf-8"),fontsize=26)
     else:
         ax.set_title(unicode(Provincia,"utf-8"),fontsize=26)
 
@@ -248,6 +255,10 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     
     Id_mod=k*Poblacion*E
     ax.plot(t_tics,Id_mod,tg,Id,'o')
+    
+    #Id_mod2=k*Poblacion*E2
+    #ax.plot(t_tics,Id_mod2)#experimento
+    
     ax.legend(('Modelo','Confirmados acumulados','Modelo', 'Confirmados diarios'),\
               shadow=True, loc=(.05, .82), handlelength=1.5, fontsize=12)
     
@@ -283,6 +294,8 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     formato=""
     for j in R0_opt:
         formato+="%10.2f , "
+        
+    tiempo_dupli=np.log(2.0)/np.log(R0_opt[-1])*(t_inf+t_exp)
     
  
     print "R0 = "+formato%tuple(R0_opt)
@@ -290,6 +303,7 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     print "t_exp = %10.2f"%t_exp+"d"
     print "I_max = %10.2e"%I_max+"h"
     print "Total Inf.= %10.2e"%I_acum_inf+"h"
+    print "Tiempo duplicación actual=%10.2f"%tiempo_dupli+"d"
     H=np.sqrt(error_opt)*Poblacion
     print "error_out = %10.2e"%H
 #  
@@ -374,7 +388,7 @@ def Error(x,*params):
     s=t*alpha
     s_corte=alpha*t_corte
     Sol = odeint(SEIR,Y0 ,s, args=(s_corte,R0))
-    return sum(((np.abs(Ia-Sol[:,2]-Sol[:,3]-Sol[:,1])))**2)
+    return np.sum(((np.abs(Ia-Sol[:,2]-Sol[:,3]-Sol[:,1])))**2)
 
 
 
