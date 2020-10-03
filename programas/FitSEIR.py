@@ -239,12 +239,13 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     bottom, top = plt.ylim()  
 
 
+
     if Provincia==None: 
-        ax.set_title(unicode(Pais,"utf-8"),fontsize=26)
+        ax.set_title(unicode(Pais,"utf-8")+"("+fecha[1]+")",fontsize=26)
     elif not dpto==None:
-        ax.set_title(unicode(Provincia,"utf-8")+', Departamento '+unicode(dpto,"utf-8"),fontsize=26)
+        ax.set_title("Departamento "+unicode(dpto,"utf-8")+"("+fecha[1]+")",fontsize=26)
     else:
-        ax.set_title(unicode(Provincia,"utf-8"),fontsize=26)
+        ax.set_title(unicode(Provincia,"utf-8")+"("+fecha[1]+")",fontsize=26)
 
     ax.legend(('I Modelo','I datos'),shadow=True, loc=(.0, .8),\
               handlelength=1.5, fontsize=12)
@@ -262,13 +263,18 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     ax.legend(('Modelo','Confirmados acumulados','Modelo', 'Confirmados diarios'),\
               shadow=True, loc=(.05, .82), handlelength=1.5, fontsize=12)
     
-    ###############Datos a la derecha de la gráfica
+    ###############cortes
     
     t_corte_g=[]
+    texto="R0 = %4.2f"%R0_opt[0]
+    ax.text(t_tics[0],bottom+.1,texto)
+    j=1
     for t in t_corte_opt:
         t_corte_g.append(tg[0]+np.timedelta64(int(t),'D'))
         ax.plot([t_corte_g[-1],t_corte_g[-1]],[0,top],color='black',linestyle='--')
-
+        texto="R0 = %4.2f"%R0_opt[j]
+        j=j+1
+        ax.text(t_corte_g[-1],bottom+.1,texto)
 
     I_max=max(I)*Poblacion
     if len(t_corte_opt)>0:
