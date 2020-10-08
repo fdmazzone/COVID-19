@@ -169,11 +169,10 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     R0_fijo=np.array(R0_fijo)
     
     
-    rangos=t_corte_lim+R0_lim+((.0,1),)#elultimo ajusta la condicion inicial
+    rangos=t_corte_lim+R0_lim+((.1,1),)#elultimo ajusta la condicion inicial
     #es la proporcion de recuperados a los confirmados acumulados.
     ########### Condicion Inicial 
-    
-   
+
     
     
     ################Elegir el método  
@@ -198,6 +197,7 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     ########### Exponiendo datos
     ### Extracción los resultados optimizacion
     
+
     Y0=[1-Ia[0],0.0,Ia[0]*x_opt[-1],Ia[0]*(1-x_opt[-1])]
     
     n=(len(x_opt[:-1])+1)/2

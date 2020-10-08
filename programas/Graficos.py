@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+b #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
 Created on Sun Jul  5 23:40:51 2020
@@ -50,8 +50,10 @@ def EpiArg(provincia='Todas', dpto=None):
     MuertesTasa=(100*HL.divide(J1.confirmado_diario)).rename('tasa_muertes')
     
     
-    fig, ((ax1,ax2,ax3),(ax4,ax5,ax6)) = plt.subplots(2,3,figsize=(18,12))
+    #fig, ((ax1,ax2,ax3),(ax4,ax5,ax6)) = plt.subplots(2,3,figsize=(18,12))
+    fig, ((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2,figsize=(18,18))
     ax1.set_yscale('log')
+    
     J2.plot.area(ax=ax1,legend=True)
     J1.plot.area(ax=ax1,legend=True)
     H2.plot.area(ax=ax1,legend=True)
@@ -59,12 +61,11 @@ def EpiArg(provincia='Todas', dpto=None):
     if dpto==None:
         ax1.set_title(unicode(provincia,"utf-8"),fontsize=18)
     else:
-        ax1.set_title(unicode(provincia,"utf-8")+'-'+unicode(dpto,"utf-8")
-        ,fontsize=18)
-
+        ax1.set_title("Departamento "+unicode(dpto,"utf-8"),fontsize=18)
+    ax1.set_xlabel('')
 
     ############# Ejemplo 2 Histogramas edades
-    DataM.hist('edad',ax=ax2,bins=range(100))
+    DataM.hist('edad',ax=ax2,bins=np.arange(0,100,2))
     ax2.set_title(u"Distribución edad muertes",fontsize=18)
     #########3###Ejemplo 3, diagrama torta de sexos
     DataM.sexo.value_counts().plot.pie(ax=ax3)
@@ -73,18 +74,19 @@ def EpiArg(provincia='Todas', dpto=None):
     
     #############  Ejemplo 4, Analisis de edad media muertes
     
-    DataM_g=DataM.groupby('fecha_fallecimiento').mean()
-    DataM_g.edad.plot(ax=ax4)
-    DataM_g.edad.rolling(20, center=True).mean().plot(ax=ax4)
-    ax4.set_title(u"Evolución edad media muertes",fontsize=18)
+#    DataM_g=DataM.groupby('fecha_fallecimiento').mean()
+#    DataM_g.edad.plot(ax=ax4)
+#    DataM_g.edad.rolling(20, center=True).mean().plot(ax=ax4)
+#    ax4.set_title(u"Evolución edad media muertes",fontsize=18)
     
-    #####   Ejemplo 5. Tasa mortalidad vs tiempo
-    MuertesTasa.plot(ax=ax5)
-    ax5.set_title(u"Tasa letalidad",fontsize=18)
+#    #####   Ejemplo 5. Tasa mortalidad vs tiempo
+#    MuertesTasa.plot(ax=ax5)
+#    ax5.set_title(u"Tasa letalidad",fontsize=18)
     
     ############# Ejemplo 6 Histogramas edades infectados
-    (H3.divide(J3)*100).plot.bar(ax=ax6)
-    ax6.set_title(u"Tasa Mostalidad vs Edad",fontsize=18)
+    H4=(H3.divide(J3)*100)
+    H4[~H4.isnull()].plot.bar(ax=ax4)
+    ax4.set_title(u"Letalidad por Edad (%)",fontsize=18)
 ########## Ejemplo 5. Grafico area confirmados, 
 ### confirmados diarios y muertes globales
 

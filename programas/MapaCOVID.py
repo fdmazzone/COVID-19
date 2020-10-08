@@ -65,7 +65,7 @@ def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
         if len(DataProv)==0:
             return "No se registra"
     if Provincia=="AMBA":
-        DataProv[DataProv.residencia_provincia_nombre=='CABA']
+        #DataProv[DataProv.residencia_provincia_nombre=='CABA']
         CasosCABA=len(DataProv[DataProv.residencia_provincia_nombre=='CABA'])
         MapaProv.at['02',"Infectados"]=CasosCABA
         DataProv=DataProv[DataProv.residencia_provincia_id==6]
@@ -147,8 +147,12 @@ def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
 
 
     
+    if Provincia=="Todas":
+        titulo="Argentina"+"("+fecha[0]+" , "+fecha[1]+")"
+    else:
+        titulo=unicode(Provincia,"utf-8")+"("+fecha[0]+" , "+fecha[1]+")"
     
-    ax.set_title(unicode(Provincia,"utf-8"),fontsize=26)
+    ax.set_title(titulo,fontsize=26)
     
         
     
