@@ -84,15 +84,17 @@ def SIR_est_2C(x,beta01,beta02,media_transf, delta_s):
     nu1=beta02*delta_s*S2*I2
     nu2=delta_s*I2
     """
-    mu1=beta01*delta_s*S1
-    mu2=delta_s
-    nu1=beta02*delta_s*S2
-    nu2=delta_s   
+    mu1=beta01*delta_s*S1*I1
+    mu2=delta_s*I1
+    nu1=beta02*delta_s*S2*I2
+    nu2=delta_s*I2 
     
     
-    I1_dot,R1_dot=np.sum(poisson(lam=(mu1,mu2),size=(I1,2)),axis=0)
-    I2_dot,R2_dot=np.sum(poisson(lam=(nu1,nu2),size=(I2,2)),axis=0)
-
+    I1_dot=poisson(lam=mu1)
+    R1_dot=poisson(lam=mu2)
+    I2_dot=poisson(lam=nu1)
+    R2_dot=poisson(lam=nu2)
+    
     Delta=np.array([[I1_dot,I2_dot],[R1_dot,R2_dot]])
 
     
@@ -124,15 +126,15 @@ from numpy.random import rand, binomial, multinomial, poisson
 
 fig, ((ax1,ax2,ax3),(ax4,ax5,ax6))=plt.subplots(2,3,figsize=(20,15))
 
-R01,R02=1.1,5.1
+R01,R02=3.0,2.0
 
 
 
 N1=100000
 N2=100000
 delta_s=.1*min(1,N1/R01,N2/R02)
-media_transf=10
-n=1000
+media_transf=5.0
+n=500
 
 
 X=np.zeros([3,2,n],dtype=int)
@@ -163,28 +165,35 @@ s=np.arange(0,n*delta_s,delta_s)
 ax1.plot(s,X[:,0,:].T,marker='o')
 ax1.set(yscale='log',ylim=(1,N1+N2))
 ax1.set_title('Ciudad 1')
+ax1.legend(['S','I','R'])
 
 
 ax2.plot(s,X[:,1,:].T,marker='o')
 ax2.set(yscale='log',ylim=(1,N1+N2))
 ax2.set_title('Ciudad 2')
+ax2.legend(['S','I','R'])
+
 
 Y=np.sum(X,axis=1) ## Suma de las dos ciudades
 Ia=np.sum(Y[1:,:],axis=0) ## Infectados acumulados
 Iad=np.diff(Ia)  ## infectados diarios
+
 
 ###  Grafica de infectados acumulados###################################
 
 ax3.plot(s,Ia,s[1:],Iad)
 ax3.set(yscale='log',ylim=(1,N1+N2))
 ax3.set_title('Pais')
+ax3.legend(['I_acum','I','R'])
 
 ax4.plot(s[:-1],T[:,0,:].T.cumsum(axis=0),marker='o')
 ax4.set_title('Ciudad 1-Migraciones')
+ax4.legend(['S','I','R'])
+
 
 ax5.plot(s[:-1],T[:,1,:].T.cumsum(axis=0),marker='o')
 ax5.set_title('Ciudad 2-Migraciones')
+ax5.legend(['S','I','R'])
 
 ax6.plot(s[:-1],I1d,s[:-1],I2d,marker='o')
 ax6.set_title('Ciudadades 1 y 2-Casos nuevos')
-
