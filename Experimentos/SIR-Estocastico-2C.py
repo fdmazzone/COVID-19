@@ -126,15 +126,15 @@ from numpy.random import rand, binomial, multinomial, poisson
 
 fig, ((ax1,ax2,ax3),(ax4,ax5,ax6))=plt.subplots(2,3,figsize=(20,15))
 
-R01,R02=3.0,2.0
+R01,R02=1.1,5.1
 
 
 
 N1=100000
 N2=100000
 delta_s=.1*min(1,N1/R01,N2/R02)
-media_transf=5.0
-n=500
+media_transf=10.0
+n=1000
 
 
 X=np.zeros([3,2,n],dtype=int)

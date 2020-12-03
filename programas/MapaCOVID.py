@@ -111,7 +111,8 @@ def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
     
     MapaProv_points = MapaProv.copy()
     MapaProv_points['geometry'] = MapaProv_points['geometry'].centroid
-    fig, ax = plt.subplots(figsize=(12,12))   
+    fig=plt.figure(figsize=(10,14))
+    ax=fig.add_axes([0,0.0,1,1])
 
     if tipo=='colorpléctico':
         divider = make_axes_locatable(ax)
@@ -121,6 +122,7 @@ def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
         if Provincia=="Todas":
             MapaProv2=geopandas.read_file('Data/GeoData/provincia.json')
             MapaProv2.plot(ax=ax, color="white",alpha=.1, edgecolor="black", linewidth=5.0)
+            ax.set_ylim(-55.13, -21.2);ax.set_xlim(-73.8, -53.27)
     else:
         MapaProv.plot(ax=ax, color="white", edgecolor="grey", linewidth=0.4)
         if Provincia=="Todas":
@@ -158,11 +160,11 @@ def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
     
     
     
-    fig1, ax1 = plt.subplots(figsize=(12,12))
+    #fig1, ax1 = plt.subplots(figsize=(12,12))
     
-    Resultado=MapaProv.sort_values("Infectados",ascending=False)
-    Resultado.Infectados.plot.bar(ax=ax1)
-    return Resultado.nam
+    #Resultado=MapaProv.sort_values("Infectados",ascending=False)
+    #Resultado.Infectados.plot.bar(ax=ax1)
+    return fig, ax
 
 def readDataArg(Provincia):
     """

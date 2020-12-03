@@ -1,4 +1,4 @@
-b #!/usr/bin/env python2
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
 Created on Sun Jul  5 23:40:51 2020
@@ -71,8 +71,17 @@ def EpiArg(provincia='Todas', dpto=None):
     DataM.sexo.value_counts().plot.pie(ax=ax3)
     ax3.set_title(u"Distribución muertes por sexo",fontsize=18)
     
+
     
-    #############  Ejemplo 4, Analisis de edad media muertes
+    ############# Ejemplo 6 Histogramas edades infectados
+    H4=(H3.divide(J3)*100)
+    H4[~H4.isnull()].plot.bar(ax=ax4)
+    ax4.set_title(u"Letalidad por Edad (%)",fontsize=18)
+    
+    
+    
+    fig1, ax5 = plt.subplots(figsize=(8,8))
+        #############  Ejemplo 4, Analisis de edad media muertes
     
 #    DataM_g=DataM.groupby('fecha_fallecimiento').mean()
 #    DataM_g.edad.plot(ax=ax4)
@@ -80,13 +89,8 @@ def EpiArg(provincia='Todas', dpto=None):
 #    ax4.set_title(u"Evolución edad media muertes",fontsize=18)
     
 #    #####   Ejemplo 5. Tasa mortalidad vs tiempo
-#    MuertesTasa.plot(ax=ax5)
-#    ax5.set_title(u"Tasa letalidad",fontsize=18)
-    
-    ############# Ejemplo 6 Histogramas edades infectados
-    H4=(H3.divide(J3)*100)
-    H4[~H4.isnull()].plot.bar(ax=ax4)
-    ax4.set_title(u"Letalidad por Edad (%)",fontsize=18)
+    MuertesTasa.rolling(20, center=True).mean().plot(ax=ax5)
+    ax5.set_title(u"Tasa letalidad",fontsize=18)
 ########## Ejemplo 5. Grafico area confirmados, 
 ### confirmados diarios y muertes globales
 
@@ -182,12 +186,12 @@ def Testeos(provincia='Todas', dpto=None):
     
     J0=DataC[['id_evento_caso','fecha_apertura']].groupby('fecha_apertura')
     J1=J0.count().rename(columns={'id_evento_caso':'confirmado_diario'})
-    H0=DataM[['id_evento_caso','fecha_fallecimiento']].groupby('fecha_fallecimiento')
-    H1=H0.count().rename(columns={'id_evento_caso':'muertes_diarias'})
-    H1.index=pd.to_datetime(H1.index)
+    #H0=DataM[['id_evento_caso','fecha_fallecimiento']].groupby('fecha_fallecimiento')
+    #H1=H0.count().rename(columns={'id_evento_caso':'muertes_diarias'})
+    #H1.index=pd.to_datetime(H1.index)
     J1.index=pd.to_datetime(J1.index)
     
-    H2=H1.cumsum().rename(columns={'muertes_diarias':'muertes_acumuladas'})
+    #H2=H1.cumsum().rename(columns={'muertes_diarias':'muertes_acumuladas'})
     J2=J1.cumsum().rename(columns={'confirmado_diario':'confirmados'})
     
     
@@ -198,7 +202,7 @@ def Testeos(provincia='Todas', dpto=None):
     
     L2=L1.cumsum().rename(columns={'evento_diario':'evento_acumulado'}) 
     
-    fig, ax1 = plt.subplots(1,1,figsize=(18,12))
+    fig, (ax1,ax2) = plt.subplots(2,1,figsize=(18,12))
     ax1.set_yscale('log')
     J2.plot(ax=ax1,Marker='+',legend=True)
     J1.plot(ax=ax1,Marker='^',legend=True)
@@ -211,7 +215,11 @@ def Testeos(provincia='Todas', dpto=None):
     L1.plot(ax=ax1,Marker='o',legend=True)
 
 
-
+    #fig2, ax2 = plt.subplots(1,1,figsize=(18,12))
+    
+    Razon=J1.confirmado_diario/L1.evento_diario*100
+    Razon.plot(ax=ax2)
+    
 def MapaCOVID(provincia):
     """
         Hace un mapa de la provincia dividida por departamentos y colorea con 
