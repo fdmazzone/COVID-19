@@ -17,10 +17,6 @@ def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
         
         Parametros: Provincia: str. Nombre de una provincia Argentina
                     
-                    campo: str. Si campo=None se consideran todas las entradas 
-                    de la base correspondiendo a todos los test realizados. 
-                    Si campo="confirmado", se cuentan los casos confirmados. 
-                    Valor por defecto None
                     
                     tipo: str. Tipo del gráfico "burbuja" o "colorpléctico".
                     Valor por defecto "Burbuja"
@@ -30,7 +26,7 @@ def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
                     consideran los casos de entre las fechas estipuladas.
                     Debe ser "AAAA-MM-DD"<= "aaaa-mm-dd". Valor por defecto 
                     None.
-        retorna: Mapa con distribución de casos o test
+        retorna: Mapa con distribución de casos 
     """
     
     DataProv=readDataArg(Provincia)
@@ -111,8 +107,10 @@ def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
     
     MapaProv_points = MapaProv.copy()
     MapaProv_points['geometry'] = MapaProv_points['geometry'].centroid
+    
     fig=plt.figure(figsize=(10,14))
-    ax=fig.add_axes([0,0.0,1,1])
+    ax=fig.add_axes([0,0.05,1,.85])
+    ax.set_aspect(aspect=1.0)
 
     if tipo=='colorpléctico':
         divider = make_axes_locatable(ax)
@@ -123,14 +121,17 @@ def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
             MapaProv2=geopandas.read_file('Data/GeoData/provincia.json')
             MapaProv2.plot(ax=ax, color="white",alpha=.1, edgecolor="black", linewidth=5.0)
             ax.set_ylim(-55.13, -21.2);ax.set_xlim(-73.8, -53.27)
-    else:
-        MapaProv.plot(ax=ax, color="white", edgecolor="grey", linewidth=0.4)
-        if Provincia=="Todas":
-            MapaProv2=geopandas.read_file('Data/GeoData/provincia.json')
-            Prov_cont=MapaProv2.plot(ax=ax, color="white",alpha=.1, edgecolor="black", linewidth=5.0)
-        MapaProv_points.Infectados=5000*MapaProv_points.Infectados/MapaProv_points.Infectados.max()
-        MapaProv_points.plot(ax=ax,color="#e63131", markersize="Infectados",
-                             alpha=0.7, categorical=False, legend=True )
+            ax.set_aspect(aspect=.97)
+        else:
+            MapaProv.plot(ax=ax, color="white", edgecolor="grey", linewidth=0.4)
+            if Provincia=="Todas":
+                MapaProv2=geopandas.read_file('Data/GeoData/provincia.json')
+                Prov_cont=MapaProv2.plot(ax=ax, color="white",alpha=.1, edgecolor="black", linewidth=5.0)
+                ax.set_ylim(-55.13, -21.2);ax.set_xlim(-73.8, -53.27)
+            MapaProv_points.Infectados=5000*MapaProv_points.Infectados/MapaProv_points.Infectados.max()
+            MapaProv_points.plot(ax=ax,color="#e63131", markersize="Infectados",
+                                 alpha=0.7, categorical=False, legend=True )
+
     if not Provincia=="Todas":
         for x, y, label in zip(MapaProv_points.geometry.x,
                                MapaProv_points.geometry.y, MapaProv_points.in1):
@@ -144,7 +145,7 @@ def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
             x=Localidades.centroide_lat[h]
             y=Localidades.centroide_lon[h]
             label=Localidades.nombre[h]
-            ax.annotate(unicode(label,"utf-8"), xy=( y,x),color='black', xytext=(2, 2), fontsize=8,textcoords="offset points")
+            ax.annotate(label, xy=( y,x),color='black', xytext=(2, 2), fontsize=8,textcoords="offset points")
             ax.scatter(y,x,color='black')
 
 
@@ -152,9 +153,9 @@ def MapaCOVID(Provincia="Todas",tipo="burbuja", fecha=None
     if Provincia=="Todas":
         titulo="Argentina"+"("+fecha[0]+" , "+fecha[1]+")"
     else:
-        titulo=unicode(Provincia,"utf-8")+"("+fecha[0]+" , "+fecha[1]+")"
+        titulo=Provincia+"("+fecha[0]+" , "+fecha[1]+")"
     
-    ax.set_title(titulo,fontsize=26)
+    ax.set_title(titulo,fontsize=18)
     
         
     
@@ -207,7 +208,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
 import numpy as np
-from shapely.geometry import Point, Polygon
+#from shapely.geometry import Point, Polygon
 
 ################# Vriables Globales ##########################################
 

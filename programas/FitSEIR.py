@@ -7,7 +7,9 @@ Created on Thu Jul  9 19:27:44 2020
 """
 
 
-def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fijo=(),t_lim=(),t_lim_fijo=(),Metodo='shgo'):
+def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), 
+            R0_lim=(),R0_fijo=(),t_lim=(),t_lim_fijo=(),
+            Rango_I0=((.1,1),),Metodo='shgo',save=None):
     """
     ##########################################################################
     Ajuste de los datos de la pandemia del COVID-19 a un modelo SEIR usando un
@@ -168,11 +170,7 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
 
     R0_fijo=np.array(R0_fijo)
 
-
-    rangos=t_corte_lim+R0_lim+((.1,1),)#elultimo ajusta la condicion inicial
-    #es la proporcion de recuperados a los confirmados acumulados.
-    ########### Condicion Inicial
-
+    rangos=t_corte_lim+R0_lim+Rango_I0
 
 
     ################Elegir el método
@@ -203,6 +201,7 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     n=int((len(x_opt[:-1])+1)/2)
     t_corte_opt=np.concatenate([t_lim_fijo,x_opt[:n-1]])
     R0_opt=np.concatenate([R0_fijo,x_opt[n-1:-1]])
+    I0_opt=x_opt[-1]
 
     ###  Calculo curva teórica resultante
     t_prediccion=365.0
@@ -300,9 +299,12 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     formato=""
     for j in R0_opt:
         formato+="%10.2f , "
-
-    tiempo_dupli=np.log(2.0)/np.log(R0_opt[-1])*(t_inf+t_exp)
-
+    
+    if R0_opt[-1]>1:
+        tiempo_dupli=np.log(2.0)/np.log(R0_opt[-1])*(t_inf+t_exp)
+    else:
+        tiempo_dupli=np.inf
+    
 
     print("R0 = "+formato%tuple(R0_opt))
     print("t_inf = %10.2f"%t_inf+"d")
@@ -312,7 +314,15 @@ def FitSEIR(Pais='Argentina',Provincia=None,dpto=None,fecha=(), R0_lim=(),R0_fij
     print("Tiempo duplicación actual=%10.2f"%tiempo_dupli+"d")
     H=np.sqrt(error_opt)*Poblacion
     print("error_out = %10.2e"%H)
-#
+    print("Proporcion I a acumulados en t=0 = %10.2e"%I0_opt)
+    if save != None:
+        if Provincia==None:
+            file=save+Pais.upper()+"fit.png"
+        elif not dpto==None:
+            file=save+dpto.upper()+"fit.png"
+        else:
+            file=save+Provincia.upper()+"fit.png"
+        plt.savefig(file)
 
 
 
@@ -394,7 +404,7 @@ def Error(x,*params):
     s=t*alpha
     s_corte=alpha*t_corte
     Sol = odeint(SEIR,Y0 ,s, args=(s_corte,R0))
-    return np.sum(((np.log(1+np.abs(Ia-Sol[:,2]-Sol[:,3]-Sol[:,1])))))
+    return np.sum(   (Ia-Sol[:,2]-Sol[:,3]-Sol[:,1])**2) 
 
 
 
@@ -640,4 +650,5 @@ alpha=1.0/t_inf
 k=1.0/t_exp
 k_ast=k/alpha
 epsilon=1.0
+
 

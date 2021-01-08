@@ -10,6 +10,45 @@ import pandas as pd
 
 ########### Ejemplo 1, Grafico area de casos diarios y muertes###############
 
+def EpiArg1(ax1,provincia='Todas', dpto=None):
+    Data=pd.read_csv('Data/Epidemic/Covid19Casos.csv')
+    if not provincia=="Todas":
+        Data=Data[Data.residencia_provincia_nombre==provincia]
+    if not dpto==None:
+        Data=Data[Data.residencia_departamento_nombre==dpto]
+    DataC=Data[Data.clasificacion_resumen=='Confirmado']
+    DataM=DataC[DataC.fallecido=='SI']
+    
+    J0=DataC[['id_evento_caso','fecha_apertura']].groupby('fecha_apertura')
+    J1=J0.count().rename(columns={'id_evento_caso':'confirmado_diario'})
+    H0=DataM[['id_evento_caso','fecha_fallecimiento']].groupby('fecha_fallecimiento')
+    H1=H0.count().rename(columns={'id_evento_caso':'muertes_diarias'})
+    H1.index=pd.to_datetime(H1.index)
+    J1.index=pd.to_datetime(J1.index)
+    
+    H2=H1.cumsum().rename(columns={'muertes_diarias':'muertes_acumuladas'})
+    J2=J1.cumsum().rename(columns={'confirmado_diario':'confirmados'})
+    
+    #fig, ((ax1,ax2,ax3),(ax4,ax5,ax6)) = plt.subplots(2,3,figsize=(18,12))
+    #fig, ax1 = plt.subplots(figsize=(18,18))
+    ax1.set_yscale('log')
+    
+    J2.plot.area(ax=ax1,legend=True)
+    J1.plot.area(ax=ax1,legend=True)
+    H2.plot.area(ax=ax1,legend=True)
+    H1.plot.area(ax=ax1,legend=True)
+    if dpto==None:
+        ax1.set_title(provincia,fontsize=18)
+    else:
+        ax1.set_title("Departamento "+dpto,fontsize=18)
+    ax1.set_xlabel('')
+
+
+
+
+
+
+
 def EpiArg(provincia='Todas', dpto=None):
     Data=pd.read_csv('Data/Epidemic/Covid19Casos.csv')
     if not provincia=="Todas":
@@ -59,9 +98,9 @@ def EpiArg(provincia='Todas', dpto=None):
     H2.plot.area(ax=ax1,legend=True)
     H1.plot.area(ax=ax1,legend=True)
     if dpto==None:
-        ax1.set_title(unicode(provincia,"utf-8"),fontsize=18)
+        ax1.set_title(provincia,fontsize=18)
     else:
-        ax1.set_title("Departamento "+unicode(dpto,"utf-8"),fontsize=18)
+        ax1.set_title("Departamento "+dpto,fontsize=18)
     ax1.set_xlabel('')
 
     ############# Ejemplo 2 Histogramas edades
@@ -96,14 +135,16 @@ def EpiArg(provincia='Todas', dpto=None):
 
 def EpiGlobal(Pais='Tierra'):
     DataC, DataM, DataR=readData(Pais)
+    fecha=str(DataC.index[-1])[:10]
     DataCd=DataC.diff().apply(abs).rename('Confirmados diarios')
     fig,ax=plt.subplots(figsize=(8,8))
     plt.yscale('log')
+    print(min(DataC))
     DataC.plot.area(ax=ax,legend=True)
     DataCd.plot.area(ax=ax,legend=True)
     DataM.plot.area(ax=ax,legend=True)
     DataM.diff().apply(abs).rename('muertes_diarias').plot.area(ax=ax,legend=True)
-    ax.set_title(unicode(Pais,"utf-8"),fontsize=18)
+    ax.set_title(Pais+'('+fecha+')',fontsize=18)
     
 def Sint_Asint(provincia='Todas',dpto=None):
     Data=readDataArg(provincia=provincia,dpto=dpto)
@@ -144,11 +185,66 @@ def Sint_Asint(provincia='Todas',dpto=None):
     H3.plot(ax=ax2,Marker='o')
     ax2.set_title(u'Relación sintomáticos al total',fontsize=18)
     
+    
+def Sint_Asint_edad(provincia='Todas',dpto=None):
+        
+        
+        Data=readDataArg(provincia=provincia,dpto=dpto)
+        i=0
+        marker=[".",",","o","v","^","<",">","1","2","3","4","8","s","p","P"]
+    
+        rangos=[(10*i,10*(i+1)) for i in range(1,8)]
+        
+        
+        fig, ax = plt.subplots(figsize=(16,10))
+        ax.set_title(u'Relación sintomáticos al total',fontsize=18)
+
+        
+        
+        for edad in rangos:
+            I=(Data.edad>=edad[0]) & (Data.edad<edad[1])
+            DataEdad=Data[I]
+            
+            DataSint=DataEdad[DataEdad.fecha_inicio_sintomas.notnull()]
+            
+            
+            J0=DataEdad[['id_evento_caso','fecha_apertura']].groupby('fecha_apertura')
+            J1=J0.count().rename(columns={'id_evento_caso':'casos_acumulados'})
+            H0=DataSint[['id_evento_caso','fecha_apertura']].groupby('fecha_apertura')
+            H1=H0.count().rename(columns={'id_evento_caso':'casos_sintomaticos_acumulados'})
+            
+            H1.index=pd.to_datetime(H1.index)
+            J1.index=pd.to_datetime(J1.index)
+        
+        
+            
+            H2=H1.cumsum()#.rename(columns={'casos_sintomáticos_acumulados':'casos_asint_acumuladas'})
+            J2=J1.cumsum()#.rename(columns={'casos_diarios':'casos_acumulados'})
+        
+            
+        
+        
+            I=J2.index.difference(H2.index)
+            nan_array=np.empty(len(I))
+            nan_array[:]=np.NaN
+            HH=pd.Series(nan_array, index=I).sort_index()
+            H2=pd.concat([H2.casos_sintomaticos_acumulados,HH]).sort_index()
+            H3=H2.divide(J2.casos_acumulados)*100
+            #H3.rename(u'asintomáticos (%)')
+            H3=H3.to_frame().rename(columns={0:str(edad)})
+            H3.plot(ax=ax,Marker=marker[i],legend=True)
+            i=i+1
+    
+  
+
+
 def PlotEdad(provincia='Todas',dpto=None):
     Data=readDataArg(provincia=provincia,dpto=dpto)
-    rangos=[(20*i,20*(i+1)) for i in range(5)]
+    rangos=[(10*i,10*(i+1)) for i in range(1,8)]
     fig, ax = plt.subplots(1,1,figsize=(10,10))
-    ax.set_yscale('log')
+    JT0=Data[['id_evento_caso','fecha_apertura']].groupby('fecha_apertura')
+    JT=JT0.count().rename(columns={'id_evento_caso':'confirmado_diario'})
+    #ax.set_yscale('log')
     i=0
     marker=[".",",","o","v","^","<",">","1","2","3","4","8","s","p","P"]
     for edad in rangos:
@@ -156,9 +252,12 @@ def PlotEdad(provincia='Todas',dpto=None):
         DataEdad=Data[I]
         J0=DataEdad[['id_evento_caso','fecha_apertura']].groupby('fecha_apertura')
         J1=J0.count().rename(columns={'id_evento_caso':str(edad)})
-        J1.index=pd.to_datetime(J1.index)
-        J2=J1.cumsum()
-        J2.plot(ax=ax,marker=marker[i],legend=True)
+        J2=J1[str(edad)]/JT['confirmado_diario']*100 
+        J2=J2.to_frame().rename(columns={0:str(edad)})
+        J2.index=pd.to_datetime(J2.index)
+        #J2=J1.cumsum()
+        #J2.plot(ax=ax,marker=marker[i],legend=True)
+        J2.plot(ax=ax,marker=marker[i],markersize=18,legend=True)
         i=i+1
 
 
@@ -282,7 +381,7 @@ def MapaCOVID(provincia):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.1)
     MapaProv.plot(column='MuertesxInfectado',ax=ax,cax=cax,edgecolor="black",cmap=newcmp , legend=True)  
-    ax.set_title(unicode(provincia,"utf-8"),fontsize=26)
+    ax.set_title(provincia,fontsize=26)
     
     fig1, ax1 = plt.subplots(1, 1)
     
@@ -364,7 +463,7 @@ newcolors[:1, :] = white
 newcmp = ListedColormap(newcolors)
 
 ##################  DIRECCIONES DE CARPETAS ###################################
-dir1=unicode(os.getcwd(),'utf-8')
+dir1=os.getcwd()
 filepath1=dir1+"/Data/Epidemic/Covid19Casos.csv"
 filepath2=dir1+"/Data/GeoData/departamento.json"
 filepath3=dir1+"/Data/GeoData/provincia.json"
